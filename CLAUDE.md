@@ -1,17 +1,26 @@
 # PEPA Wallet Intelligence
 
 ## Table of Contents
+- [Port](#port)
 - [Vision & Philosophy](#vision--philosophy)
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Quick Start](#quick-start)
 - [Commands](#commands)
 - [Development Philosophy](#development-philosophy)
-- [Workflow Orchestration](#workflow-orchestration)
-- [Task Management](#task-management)
-- [Core Principles](#core-principles)
+- [Boris Dev Principles](#boris-dev-principles)
 - [Security](#security)
+- [Skills](#skills)
 - [Resources](#resources)
+
+---
+
+## Port
+
+| Port | Bind | URL | Process |
+|------|------|-----|---------|
+| `3000` | `127.0.0.1` | `http://localhost:3000` | Next.js dev server |
+<!-- Registered in ~/.claude/port-registry.md -->
 
 ---
 
@@ -310,61 +319,63 @@ npm run type-check   # TypeScript check
 
 ---
 
-## Workflow Orchestration
+## Boris Dev Principles
 
-### For AI coding agents working on this repo:
+> **Mandatory.** These rules apply to every project. They can only be adapted if the reason is documented in this file.
+
+### Workflow Orchestration
+
+#### For AI coding agents working on this repo:
 
 1. **Read this file first.** Always.
 2. **Check ROADMAP.md** for current phase and priorities.
 3. **One concern per commit.** Don't mix UI changes with backend logic.
 4. **Ask if unclear.** If requirements are ambiguous, stop and ask rather than guess.
 
-### Key decisions already made:
+#### Key decisions already made:
 - Supabase over SQLite (realtime subscriptions needed)
 - Next.js over plain React (SSR + API routes in one)
 - WDK MCP Toolkit for wallet ops (don't reinvent)
 - Statistical model for anomaly detection (not LLM)
 - 4-layer governance architecture (rules → stats → agent → human)
 
-### 1. Plan Mode Default
+#### 1. Plan Mode Default
 - Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
 - If something goes sideways, STOP and re-plan immediately — don't keep pushing
 - Use plan mode for verification steps, not just building
 - Write detailed specs upfront to reduce ambiguity
 
-### 2. Subagent Strategy
+#### 2. Subagent Strategy
 - Use subagents liberally to keep main context window clean
 - Offload research, exploration, and parallel analysis to subagents
 - For complex problems, throw more compute at it via subagents
 - One task per subagent for focused execution
 
-### 3. Self-Improvement Loop
+#### 3. Self-Improvement Loop
 - After ANY correction from the user: update `tasks/lessons.md` with the pattern
 - Write rules for yourself that prevent the same mistake
 - Ruthlessly iterate on these lessons until mistake rate drops
 - Review lessons at session start for relevant project
 
-### 4. Verification Before Done
+#### 4. Verification Before Done
 - Never mark a task complete without proving it works
 - Diff behavior between main and your changes when relevant
 - Ask yourself: "Would a staff engineer approve this?"
 - Run tests, check logs, demonstrate correctness
 
-### 5. Demand Elegance (Balanced)
+#### 5. Demand Elegance (Balanced)
 - For non-trivial changes: pause and ask "is there a more elegant way?"
 - If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
 - Skip this for simple, obvious fixes — don't over-engineer
 - Challenge your own work before presenting it
 
-### 6. Autonomous Bug Fixing
+#### 6. Autonomous Bug Fixing
 - When given a bug report: just fix it. Don't ask for hand-holding
 - Point at logs, errors, failing tests — then resolve them
 - Zero context switching required from the user
 - Go fix failing CI tests without being told how
 
----
-
-## Task Management
+### Task Management
 
 1. **Plan First:** Write plan to `tasks/todo.md` with checkable items
 2. **Verify Plan:** Check in before starting implementation
@@ -373,9 +384,7 @@ npm run type-check   # TypeScript check
 5. **Document Results:** Add review section to `tasks/todo.md`
 6. **Capture Lessons:** Update `tasks/lessons.md` after corrections
 
----
-
-## Core Principles
+### Core Principles
 
 - **Simplicity First:** Make every change as simple as possible. Impact minimal code.
 - **No Laziness:** Find root causes. No temporary fixes. Senior developer standards.
@@ -398,6 +407,17 @@ npm run type-check   # TypeScript check
 - The seed script generates a NEW testnet wallet — no real funds involved
 - All demo transactions use testnet tokens
 - No external services are required beyond Supabase (can use local or cloud)
+
+---
+
+## Skills
+
+| Skill | When to use |
+|-------|-------------|
+| `supabase-selfhosted-expert` | Database schemas, tables, RLS policies, Supabase connections |
+| `frontend-design` | UI components, dashboard layout, premium dark theme design |
+| `claude-developer-platform` | If using Anthropic API for the LLM agent interpretation layer |
+| `github-actions` | CI/CD pipelines, automated testing, deployment workflows |
 
 ---
 
