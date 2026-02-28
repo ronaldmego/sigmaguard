@@ -1,0 +1,18 @@
+export {
+  getWalletAddress,
+  getWalletBalance,
+  sendTransaction,
+  estimateFee,
+  generateSeedPhrase,
+  isValidSeed,
+  disposeWdk,
+  type WalletBalance,
+  type SendTransactionResult,
+} from "./wallet";
+
+export {
+  CHAINS,
+  DEFAULT_CHAIN,
+  getChain,
+  type ChainConfig,
+} from "./chains";
