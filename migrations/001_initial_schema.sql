@@ -4,10 +4,14 @@
 -- Create schema
 CREATE SCHEMA IF NOT EXISTS pepa;
 
--- Grant permissions
+-- Grant schema usage
 GRANT USAGE ON SCHEMA pepa TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA pepa GRANT ALL ON TABLES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA pepa GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+
+-- Restrictive default privileges: anon/authenticated get SELECT only
+-- (service_role bypasses RLS and has superuser-level access already)
+ALTER DEFAULT PRIVILEGES IN SCHEMA pepa GRANT ALL ON TABLES TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pepa GRANT ALL ON SEQUENCES TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pepa GRANT SELECT ON TABLES TO anon, authenticated;
 
 -- Enable UUID extension if not exists
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA extensions;
