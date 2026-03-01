@@ -28,54 +28,24 @@
 
 ---
 
-## Phase 3 — Autonomous Agent 🎯 CURRENT (Mar 2 – Mar 10)
+## Phase 3 — Autonomous Agent ✅ COMPLETE (Mar 1)
 
-**Goal:** Transform from reactive evaluator to autonomous DeFi agent with governance. This is the differentiator — an agent that OPERATES autonomously but under strict governance controls.
-
-### Architecture: Autonomous Agent Loop
-
-```
-Agent Loop (runs every 30 min)
-  │
-  ├── 1. Fetch market data (CoinGecko API, free)
-  │     └── Prices, 24h change, volume for tracked assets
-  │
-  ├── 2. Agent (GPT-5.2) evaluates strategy
-  │     └── Input: market data + portfolio state + strategy config
-  │     └── Output: { action: "buy"|"sell"|"hold", asset, amount, reasoning }
-  │
-  ├── 3. If action != "hold" → Transaction enters Governance Pipeline
-  │     ├── Layer 1: Fixed Rules (max amount, daily cap, allowed assets)
-  │     ├── Layer 2: Anomaly Detection (is this trade unusual vs history?)
-  │     ├── Layer 3: LLM Interpreter (explain decision in plain language)
-  │     └── Layer 4: Auto-execute if normal / Escalate if flagged
-  │
-  └── 4. Dashboard shows everything in realtime
-        └── Agent decisions, governance flow, portfolio state
-```
-
-### Tasks:
-- [ ] Create `src/lib/agent/autonomous.ts` — agent loop with strategy evaluation
-- [ ] Create `src/lib/agent/market.ts` — CoinGecko price fetcher
-- [ ] Create `src/lib/agent/strategies.ts` — DCA + rebalance strategies
-- [ ] Strategy config in Supabase: target allocations, DCA amount, frequency
-- [ ] Agent loop triggers governance pipeline for each trade decision
-- [ ] Dashboard: new "Agent Activity" panel showing autonomous decisions
-- [ ] Dashboard: portfolio allocation chart (current vs target)
-- [ ] Agent status indicator: running/paused/awaiting-approval
-- [ ] Pause/resume agent from UI (human override)
-- [ ] Multi-chain: agent can operate on Ethereum + Polygon via WDK
-
-### DeFi Strategies to Implement:
-1. **DCA (Dollar Cost Averaging):** Buy X amount of ETH every N hours with USDt. Simplest, most defensible strategy.
-2. **Portfolio Rebalance:** Maintain target allocation (e.g., 60% USDt / 40% ETH). When drift > threshold → trade to rebalance.
-
-### Definition of Done:
-Agent runs autonomously, makes DCA purchases on schedule, each trade passes through 4-layer governance, anomalous trades get escalated to human approval queue, everything visible in realtime dashboard.
+**Delivered:**
+- In-memory agent loop (singleton, setInterval) with start/stop/status lifecycle
+- CoinGecko market data fetcher (ETH + MATIC prices, 60s cache, stale fallback)
+- DCA strategy: time-based periodic transfers to vault (configurable interval, default 120s)
+- Rebalance strategy: drift-based allocation correction (overweight detection, send-only)
+- Every transfer goes through full 4-layer governance pipeline
+- 2 new Supabase tables (`agent_strategies`, `agent_runs`) with RLS + realtime
+- 4 API endpoints: start, stop, status, history
+- 3 dashboard components: AgentPanel, AgentActivityFeed, PortfolioAllocation
+- 25 new tests (111 total), clean build
+- Seed includes 2 demo strategies (DCA active, Rebalance inactive)
+- PR #7 merged, Issue #6 closed
 
 ---
 
-## Phase 4 — Polish & Demo Prep (Mar 11 – Mar 18)
+## Phase 4 — Polish & Demo Prep 🎯 CURRENT (Mar 11 – Mar 18)
 
 ### Tasks:
 - [ ] Simulation script: fast-forward agent activity to show 24h of autonomous operation in 5 min
@@ -112,4 +82,4 @@ Judge clones repo, sees autonomous agent making governed trades in realtime with
 
 ---
 
-*Last updated: Mar 1, 2026 — Strategy pivot: reactive → autonomous agent*
+*Last updated: Mar 1, 2026 — Phase 3 complete: autonomous DeFi agent with governance*
