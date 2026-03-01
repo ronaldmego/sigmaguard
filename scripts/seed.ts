@@ -248,8 +248,10 @@ async function main() {
 
   console.log("🌱 Seeding PEPA Wallet Intelligence database...\n");
 
-  // Clear existing data (for re-seeding)
+  // Clear existing data (for re-seeding) — order matters for FK constraints
   console.log("Clearing existing data...");
+  await supabase.from("agent_runs").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  await supabase.from("agent_strategies").delete().neq("id", "00000000-0000-0000-0000-000000000000");
   await supabase.from("agent_decisions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
   await supabase.from("approval_queue").delete().neq("id", "00000000-0000-0000-0000-000000000000");
   await supabase.from("transactions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
@@ -292,12 +294,55 @@ async function main() {
   }
   console.log(`  ✓ ${anomalies.length} anomalous transactions created\n`);
 
+  // Seed agent strategies
+  const STRATEGIES = [
+    {
+      strategy_type: "dca",
+      name: "ETH DCA to Vault",
+      description: "Dollar-cost average 0.001 ETH every 120s to vault address",
+      config: {
+        asset: "ETH",
+        chain: "ethereum-sepolia",
+        amount_per_interval: 0.001,
+        interval_seconds: 120,
+        vault_address: "0x000000000000000000000000000000000000dEaD",
+        last_execution_at: null,
+      },
+      is_active: true,
+    },
+    {
+      strategy_type: "rebalance",
+      name: "ETH/MATIC Rebalance",
+      description: "Maintain 60/40 ETH/MATIC allocation with 15% drift threshold",
+      config: {
+        target_allocation: { "ethereum-sepolia": 0.6, "polygon-amoy": 0.4 },
+        drift_threshold_pct: 15,
+        vault_address: "0x000000000000000000000000000000000000dEaD",
+        chains: ["ethereum-sepolia", "polygon-amoy"],
+      },
+      is_active: false,
+    },
+  ];
+
+  console.log("Seeding agent strategies...");
+  const { error: strategyError } = await supabase
+    .from("agent_strategies")
+    .insert(STRATEGIES);
+  if (strategyError) {
+    console.error("  ✗ Failed to seed strategies:", strategyError.message);
+    process.exit(1);
+  }
+  console.log(`  ✓ ${STRATEGIES.length} strategies created\n`);
+
   // Summary
   const { count: txCount } = await supabase
     .from("transactions")
     .select("*", { count: "exact", head: true });
   const { count: ruleCount } = await supabase
     .from("governance_rules")
+    .select("*", { count: "exact", head: true });
+  const { count: stratCount } = await supabase
+    .from("agent_strategies")
     .select("*", { count: "exact", head: true });
 
   console.log("═══════════════════════════════════════");
@@ -306,6 +351,7 @@ async function main() {
   console.log(`   Transactions: ${txCount}`);
   console.log(`   Governance rules: ${ruleCount}`);
   console.log(`   Anomalous transactions: ${anomalies.length}`);
+  console.log(`   Agent strategies: ${stratCount}`);
   console.log("═══════════════════════════════════════");
   console.log("\nNext steps:");
   console.log("  npm run dev    → Start server on :4007");

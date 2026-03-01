@@ -162,3 +162,66 @@ export interface AgentDecision {
   raw_response: string | null;
   created_at: string;
 }
+
+// ============================================================
+// Autonomous Agent types
+// ============================================================
+
+export type StrategyType = "dca" | "rebalance";
+
+export type AgentStatus = "running" | "paused" | "error";
+
+export interface MarketData {
+  prices: Record<string, { usd: number; usd_24h_change: number }>;
+  fetched_at: string;
+}
+
+export interface DcaConfig {
+  asset: string;
+  chain: string;
+  amount_per_interval: number;
+  interval_seconds: number;
+  vault_address: string;
+  last_execution_at: string | null;
+}
+
+export interface RebalanceConfig {
+  target_allocation: Record<string, number>;
+  drift_threshold_pct: number;
+  vault_address: string;
+  chains: string[];
+}
+
+export interface AgentStrategy {
+  id: string;
+  strategy_type: StrategyType;
+  name: string;
+  description: string | null;
+  config: DcaConfig | RebalanceConfig;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type AgentRunDecision = "hold" | "transfer";
+
+export interface AgentRun {
+  id: string;
+  strategy_id: string;
+  strategy_type: StrategyType;
+  market_data: MarketData;
+  decision: AgentRunDecision;
+  decision_reason: string;
+  transaction_id: string | null;
+  governance_outcome: FinalOutcome | null;
+  created_at: string;
+}
+
+export interface AgentStatusInfo {
+  status: AgentStatus;
+  last_run: string | null;
+  next_run_at: string | null;
+  interval_seconds: number;
+  strategies: { total: number; active: number };
+  runs: { total: number; transfers: number };
+}
