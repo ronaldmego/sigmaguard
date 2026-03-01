@@ -172,7 +172,7 @@ export async function executeApprovedTransaction(
   }
 }
 
-function determineFinalOutcome(
+export function determineFinalOutcome(
   rulesPassed: boolean,
   isAnomaly: boolean,
   agentRecommendation: string
