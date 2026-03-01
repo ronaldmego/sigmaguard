@@ -10,6 +10,12 @@ import type {
   AnomalyResult,
   AgentRecommendation,
   FlagSource,
+  AgentStrategy,
+  AgentRun,
+  AgentRunDecision,
+  FinalOutcome,
+  StrategyType,
+  MarketData,
 } from "@/types";
 
 const db = () => getServerClient();
@@ -294,4 +300,148 @@ export async function insertAgentDecision(decision: {
 
   if (error) throw new Error(`Failed to insert agent decision: ${error.message}`);
   return data as AgentDecision;
+}
+
+// ============================================================
+// Agent Strategies
+// ============================================================
+
+export async function getActiveStrategies(): Promise<AgentStrategy[]> {
+  const { data, error } = await db()
+    .from("agent_strategies")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(`Failed to get active strategies: ${error.message}`);
+  return (data ?? []) as AgentStrategy[];
+}
+
+export async function getAllStrategies(): Promise<AgentStrategy[]> {
+  const { data, error } = await db()
+    .from("agent_strategies")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(`Failed to get strategies: ${error.message}`);
+  return (data ?? []) as AgentStrategy[];
+}
+
+export async function updateStrategyLastExecution(
+  strategyId: string
+): Promise<void> {
+  const { data: current, error: fetchError } = await db()
+    .from("agent_strategies")
+    .select("config")
+    .eq("id", strategyId)
+    .single();
+
+  if (fetchError) throw new Error(`Failed to fetch strategy: ${fetchError.message}`);
+
+  const config = current.config as Record<string, unknown>;
+  config.last_execution_at = new Date().toISOString();
+
+  const { error } = await db()
+    .from("agent_strategies")
+    .update({ config })
+    .eq("id", strategyId);
+
+  if (error) throw new Error(`Failed to update strategy execution: ${error.message}`);
+}
+
+export async function updateStrategy(
+  strategyId: string,
+  updates: Partial<Pick<AgentStrategy, "is_active" | "config" | "name" | "description">>
+): Promise<AgentStrategy> {
+  const { data, error } = await db()
+    .from("agent_strategies")
+    .update(updates)
+    .eq("id", strategyId)
+    .select()
+    .single();
+
+  if (error) throw new Error(`Failed to update strategy: ${error.message}`);
+  return data as AgentStrategy;
+}
+
+// ============================================================
+// Agent Runs (audit trail)
+// ============================================================
+
+export async function insertAgentRun(run: {
+  strategy_id: string;
+  strategy_type: StrategyType;
+  market_data: MarketData;
+  decision: AgentRunDecision;
+  decision_reason: string;
+  transaction_id?: string | null;
+  governance_outcome?: FinalOutcome | null;
+}): Promise<AgentRun> {
+  const { data, error } = await db()
+    .from("agent_runs")
+    .insert({
+      strategy_id: run.strategy_id,
+      strategy_type: run.strategy_type,
+      market_data: run.market_data,
+      decision: run.decision,
+      decision_reason: run.decision_reason,
+      transaction_id: run.transaction_id ?? null,
+      governance_outcome: run.governance_outcome ?? null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(`Failed to insert agent run: ${error.message}`);
+  return data as AgentRun;
+}
+
+export async function getAgentRunHistory(options?: {
+  limit?: number;
+  offset?: number;
+  strategy_id?: string;
+}): Promise<AgentRun[]> {
+  let query = db()
+    .from("agent_runs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (options?.strategy_id) {
+    query = query.eq("strategy_id", options.strategy_id);
+  }
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+  if (options?.offset) {
+    query = query.range(
+      options.offset,
+      options.offset + (options.limit ?? 50) - 1
+    );
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(`Failed to get agent runs: ${error.message}`);
+  return (data ?? []) as AgentRun[];
+}
+
+export async function getAgentRunStats(): Promise<{
+  total: number;
+  transfers: number;
+}> {
+  const { count: total, error: totalError } = await db()
+    .from("agent_runs")
+    .select("*", { count: "exact", head: true });
+
+  if (totalError) throw new Error(`Failed to get run count: ${totalError.message}`);
+
+  const { count: transfers, error: transferError } = await db()
+    .from("agent_runs")
+    .select("*", { count: "exact", head: true })
+    .eq("decision", "transfer");
+
+  if (transferError) throw new Error(`Failed to get transfer count: ${transferError.message}`);
+
+  return {
+    total: total ?? 0,
+    transfers: transfers ?? 0,
+  };
 }

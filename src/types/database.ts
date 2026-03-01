@@ -133,6 +133,56 @@ export interface Database {
         };
         Update: Record<string, never>;
       };
+      agent_strategies: {
+        Row: {
+          id: string;
+          strategy_type: string;
+          name: string;
+          description: string | null;
+          config: Record<string, unknown>;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          strategy_type: string;
+          name: string;
+          description?: string | null;
+          config: Record<string, unknown>;
+          is_active?: boolean;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          config?: Record<string, unknown>;
+          is_active?: boolean;
+        };
+      };
+      agent_runs: {
+        Row: {
+          id: string;
+          strategy_id: string;
+          strategy_type: string;
+          market_data: Record<string, unknown>;
+          decision: string;
+          decision_reason: string;
+          transaction_id: string | null;
+          governance_outcome: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          strategy_id: string;
+          strategy_type: string;
+          market_data: Record<string, unknown>;
+          decision: string;
+          decision_reason: string;
+          transaction_id?: string | null;
+          governance_outcome?: string | null;
+        };
+        Update: Record<string, never>;
+      };
     };
   };
 }

@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:governance": "vitest run tests/governance/",
-    "test:math": "vitest run tests/math.test.ts"
+    "test:math": "vitest run tests/math.test.ts",
+    "test:agent": "vitest run tests/agent/"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",

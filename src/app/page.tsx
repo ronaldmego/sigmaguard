@@ -6,6 +6,9 @@ import type { ApprovalWithTx } from "./components/ApprovalCard";
 import DashboardShell from "./components/DashboardShell";
 import WalletOverview from "./components/WalletOverview";
 import AnalyticsMini from "./components/AnalyticsMini";
+import AgentPanel from "./components/AgentPanel";
+import PortfolioAllocation from "./components/PortfolioAllocation";
+import AgentActivityFeed from "./components/AgentActivityFeed";
 import TransactionFeed from "./components/TransactionFeed";
 import ApprovalQueue from "./components/ApprovalQueue";
 import GovernanceRules from "./components/GovernanceRules";
@@ -142,6 +145,19 @@ export default function Home() {
               pendingCount={approvals.length}
             />
           </div>
+        </div>
+
+        {/* Agent Section */}
+        <div id="agent" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2">
+              <AgentPanel />
+            </div>
+            <div>
+              <PortfolioAllocation wallets={wallets} />
+            </div>
+          </div>
+          <AgentActivityFeed />
         </div>
 
         {/* Approval Queue (only shows if pending items exist) */}
