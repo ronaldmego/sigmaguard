@@ -421,6 +421,29 @@ npm run type-check   # TypeScript check
 
 ---
 
+
+---
+
+## Hackathon Mantras — Preguntas que te haces SIEMPRE
+
+Antes de declarar algo listo, antes de un PR, antes de cada decisión de diseño:
+
+> **¿Esto gana el concurso?** No "¿esto funciona?" — eso es el mínimo. ¿Esto GANA? ¿Un juez vería esto y diría "este es el mejor proyecto"?
+
+> **¿Qué diría el juez?** Los criterios son: technical correctness, agent autonomy, economic soundness, real-world applicability. ¿Estoy fuerte en los 4? ¿Cuál es mi punto débil?
+
+> **¿El agente es autónomo de verdad?** No reactivo, no manual, no script. ¿Opera solo? ¿Toma decisiones? ¿Solo escala a humano cuando es necesario? Si necesita que alguien lo dispare, no es autónomo.
+
+> **¿Esto tiene sentido económico?** No es un demo vacío. ¿La estrategia DeFi es real y defendible? ¿Un CFO diría "esto tiene lógica financiera"?
+
+> **¿Un juez puede correrlo en 5 minutos?** Clone → install → seed → dev → ver algo funcionando. Si tarda más, perdemos. Si falla, perdemos.
+
+> **¿Esto se ve como producto o como tarea de universidad?** Premium UI, documentación clara, código limpio. McKinsey-level, no hackathon-level.
+
+> **¿Qué nos diferencia del resto?** Si la respuesta es "nada especial", no ganamos. Nuestro diferenciador: agente autónomo + governance auditada de 4 capas. Si algo que estoy haciendo no refuerza eso, estoy perdiendo el foco.
+
+Estas preguntas no son checklist — son criterio. La diferencia entre un proyecto que compite y uno que gana es que el ganador se cuestionó a sí mismo todo el tiempo.
+
 ## Resources
 
 - **ROADMAP.md** — Development phases and milestones
