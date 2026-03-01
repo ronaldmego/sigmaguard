@@ -7,7 +7,7 @@ import type {
   AgentRecommendation,
 } from "@/types";
 
-const MODEL = "gpt-4o";
+const MODEL = "gpt-5.2";
 
 function getOpenAIClient(): OpenAI {
   const apiKey = process.env.OPENAI_API_KEY;
