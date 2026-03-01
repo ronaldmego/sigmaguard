@@ -22,6 +22,18 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    id: "agent",
+    label: "Agent",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
+        <path d="M6 10v1a6 6 0 0 0 12 0v-1" />
+        <path d="M12 18v4" />
+        <path d="M8 22h8" />
+      </svg>
+    ),
+  },
+  {
     id: "approvals",
     label: "Approvals",
     icon: (
