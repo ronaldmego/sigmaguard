@@ -16,7 +16,7 @@ async function getWalletAddress(): Promise<string> {
   }
   const wdk = new WDK(seed);
   wdk.registerWallet("ethereum-sepolia", WalletManagerEvm, {
-    provider: "https://rpc.sepolia.org",
+    provider: process.env.SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
   });
   const account = await wdk.getAccount("ethereum-sepolia", 0);
   const address = await account.getAddress();

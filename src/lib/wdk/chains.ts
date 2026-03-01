@@ -11,7 +11,7 @@ export const CHAINS: Record<string, ChainConfig> = {
   "ethereum-sepolia": {
     name: "Ethereum Sepolia",
     chainId: 11155111,
-    rpcUrl: "https://rpc.sepolia.org",
+    rpcUrl: process.env.SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
     nativeCurrency: "ETH",
     blockExplorerUrl: "https://sepolia.etherscan.io",
     isTestnet: true,
