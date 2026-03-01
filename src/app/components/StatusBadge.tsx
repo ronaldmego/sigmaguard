@@ -14,6 +14,12 @@ const STATUS_STYLES: Record<string, string> = {
   anomaly: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
   agent: "bg-violet-500/15 text-violet-400 border-violet-500/30",
   manual: "bg-gray-500/15 text-gray-400 border-gray-500/30",
+  // Agent statuses
+  running: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  hold: "bg-gray-500/15 text-gray-400 border-gray-500/30",
+  transfer: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+  dca: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+  rebalance: "bg-amber-500/15 text-amber-400 border-amber-500/30",
 };
 
 export default function StatusBadge({ status }: { status: string }) {
