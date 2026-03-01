@@ -19,7 +19,7 @@
 
 | Port | Bind | URL | Process |
 |------|------|-----|---------|
-| `3000` | `127.0.0.1` | `http://localhost:3000` | Next.js dev server |
+| `4007` | `127.0.0.1` | `http://localhost:4007` | Next.js dev server |
 <!-- Registered in ~/.claude/port-registry.md -->
 
 ---
@@ -230,7 +230,7 @@ npm run seed
 # Run development server
 npm run dev
 
-# Open http://localhost:3000
+# Open http://localhost:4007
 ```
 
 ### Environment Variables (.env.example)
@@ -250,7 +250,7 @@ WDK_CHAINS=ethereum,polygon
 OPENAI_API_KEY=your_key  # or ANTHROPIC_API_KEY
 
 # App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:4007
 ```
 
 ---
