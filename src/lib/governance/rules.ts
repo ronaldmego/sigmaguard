@@ -1,5 +1,4 @@
 import type {
-  Transaction,
   TransactionInput,
   GovernanceRule,
   RulesResult,

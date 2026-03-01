@@ -1,6 +1,6 @@
 import WDK from "@tetherto/wdk";
 import WalletManagerEvm from "@tetherto/wdk-wallet-evm";
-import { CHAINS, DEFAULT_CHAIN, type ChainConfig } from "./chains";
+import { CHAINS, DEFAULT_CHAIN } from "./chains";
 
 // Singleton WDK instance
 let wdkInstance: WDK | null = null;

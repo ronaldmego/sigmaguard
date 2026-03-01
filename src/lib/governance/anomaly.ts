@@ -1,4 +1,4 @@
-import type { AnomalyResult, Transaction } from "@/types";
+import type { AnomalyResult } from "@/types";
 import { getTransactionHistory } from "@/lib/db/queries";
 import { mean, stdDev, zScore, isIqrOutlier, zScoreToPercentile } from "@/lib/utils/math";
 
