@@ -1,98 +1,115 @@
 # ROADMAP — PEPA Wallet Intelligence
 
-## Timeline: Feb 27 → Mar 22, 2026 (23 days)
+## Track: 🌊 Autonomous DeFi Agent + 🤖 Agent Wallets
+## Timeline: Feb 27 → Mar 22, 2026
 
 ---
 
-## Phase 1 — Foundation (Feb 27 – Mar 5) 🏗️
+## Phase 1 — Foundation ✅ COMPLETE (Feb 27 – Mar 1)
 
-**Goal:** Working backend with WDK wallet + database schema + governance engine.
+**Delivered:**
+- 4-layer governance pipeline (Rules → Anomaly → Agent → Human)
+- WDK wallet integrated + testnet funded (0.05 Sepolia ETH)
+- Supabase schema with RLS + realtime
+- GPT-5.2 as LLM interpreter
+- On-chain execution verified
+- ESLint + TypeScript strict
+
+---
+
+## Phase 2 — Dashboard UI ✅ COMPLETE (Mar 1)
+
+**Delivered:**
+- 11 premium components: DashboardShell, WalletOverview, AnalyticsMini, TransactionFeed, ApprovalQueue, GovernanceRules, etc.
+- Supabase Realtime subscriptions (live tx feed + approval notifications)
+- Dark theme, violet/cyan palette, mobile responsive
+- Animations (slideIn, livePulse)
+- Build + lint + type-check clean
+
+---
+
+## Phase 3 — Autonomous Agent 🎯 CURRENT (Mar 2 – Mar 10)
+
+**Goal:** Transform from reactive evaluator to autonomous DeFi agent with governance. This is the differentiator — an agent that OPERATES autonomously but under strict governance controls.
+
+### Architecture: Autonomous Agent Loop
+
+```
+Agent Loop (runs every 30 min)
+  │
+  ├── 1. Fetch market data (CoinGecko API, free)
+  │     └── Prices, 24h change, volume for tracked assets
+  │
+  ├── 2. Agent (GPT-5.2) evaluates strategy
+  │     └── Input: market data + portfolio state + strategy config
+  │     └── Output: { action: "buy"|"sell"|"hold", asset, amount, reasoning }
+  │
+  ├── 3. If action != "hold" → Transaction enters Governance Pipeline
+  │     ├── Layer 1: Fixed Rules (max amount, daily cap, allowed assets)
+  │     ├── Layer 2: Anomaly Detection (is this trade unusual vs history?)
+  │     ├── Layer 3: LLM Interpreter (explain decision in plain language)
+  │     └── Layer 4: Auto-execute if normal / Escalate if flagged
+  │
+  └── 4. Dashboard shows everything in realtime
+        └── Agent decisions, governance flow, portfolio state
+```
 
 ### Tasks:
-- [ ] Initialize Next.js project with TypeScript
-- [ ] Setup Supabase schema (transactions, governance_rules, approval_queue, agent_decisions)
-- [ ] Integrate WDK — create wallet, check balance, send transaction (testnet)
-- [ ] Build Layer 1: Fixed rules engine (JSON policies, evaluate against transaction)
-- [ ] Build Layer 2: Anomaly detection module (Z-score, IQR over transaction history)
-- [ ] Build Layer 3: LLM agent — takes rules + stats output, generates explanation
-- [ ] Build transaction pipeline: request → rules → stats → agent → execute/queue
-- [ ] Seed script: generate test wallet + 50-100 sample transactions with realistic patterns
-- [ ] Basic API routes: POST /transaction, GET /transactions, GET /rules, POST /approve
+- [ ] Create `src/lib/agent/autonomous.ts` — agent loop with strategy evaluation
+- [ ] Create `src/lib/agent/market.ts` — CoinGecko price fetcher
+- [ ] Create `src/lib/agent/strategies.ts` — DCA + rebalance strategies
+- [ ] Strategy config in Supabase: target allocations, DCA amount, frequency
+- [ ] Agent loop triggers governance pipeline for each trade decision
+- [ ] Dashboard: new "Agent Activity" panel showing autonomous decisions
+- [ ] Dashboard: portfolio allocation chart (current vs target)
+- [ ] Agent status indicator: running/paused/awaiting-approval
+- [ ] Pause/resume agent from UI (human override)
+- [ ] Multi-chain: agent can operate on Ethereum + Polygon via WDK
+
+### DeFi Strategies to Implement:
+1. **DCA (Dollar Cost Averaging):** Buy X amount of ETH every N hours with USDt. Simplest, most defensible strategy.
+2. **Portfolio Rebalance:** Maintain target allocation (e.g., 60% USDt / 40% ETH). When drift > threshold → trade to rebalance.
 
 ### Definition of Done:
-A transaction request goes through all 4 layers and either auto-executes or lands in approval queue, with full audit trail in Supabase.
+Agent runs autonomously, makes DCA purchases on schedule, each trade passes through 4-layer governance, anomalous trades get escalated to human approval queue, everything visible in realtime dashboard.
 
 ---
 
-## Phase 2 — Dashboard UI (Mar 6 – Mar 14) 🎨
-
-**Goal:** Premium, realtime dashboard that makes judges say "this is a product, not a hackathon project."
+## Phase 4 — Polish & Demo Prep (Mar 11 – Mar 18)
 
 ### Tasks:
-- [ ] Dashboard layout: dark theme, cards-based, violet/cyan palette
-- [ ] Wallet Overview card: balance, chain, address (truncated)
-- [ ] Transaction Feed: live stream via Supabase Realtime, with status badges
-- [ ] Approval Queue: pending items with 1-click approve/reject + agent explanation
-- [ ] Governance Rules panel: view active rules, edit thresholds
-- [ ] Agent Decision Card: shows reasoning for each transaction (why approved/flagged/rejected)
-- [ ] Analytics mini-view: spending by category, anomaly rate, approval rate
-- [ ] Mobile responsive
-- [ ] Animations: transaction appearing in feed, approval notifications
+- [ ] Simulation script: fast-forward agent activity to show 24h of autonomous operation in 5 min
+- [ ] Edge cases: market crash scenario (agent tries large sell → governance flags it)
+- [ ] README with screenshots, architecture diagram, quick start for judges
+- [ ] Setup guide: judge runs locally in < 5 minutes
+- [ ] Code cleanup, comments, dead code removal
+- [ ] Test: clone fresh, `npm install && npm run seed && npm run dev` works first try
 
 ### Definition of Done:
-Full flow visible in UI: trigger transaction → see it flow through layers → see agent explanation → approve/reject → see audit trail update in realtime.
+Judge clones repo, sees autonomous agent making governed trades in realtime within 5 minutes.
 
 ---
 
-## Phase 3 — Polish & Demo Prep (Mar 15 – Mar 19) ✨
+## Phase 5 — Submission (Mar 19 – Mar 22)
 
-**Goal:** Battle-tested, demo-ready, documented.
-
-### Tasks:
-- [ ] Simulation script: auto-generates realistic transaction patterns + injects anomalies
-- [ ] Test all edge cases: cold start (new merchant), budget exhaustion, rapid-fire txs
-- [ ] Error handling: graceful failures, clear error messages
-- [ ] README.md: compelling project description + screenshots + quick start
-- [ ] Setup guide for judges: step-by-step to run locally
-- [ ] Multi-chain demo: at least 2 chains (Ethereum + Polygon testnet)
-- [ ] Performance: UI loads fast, realtime updates are smooth
-- [ ] Code cleanup: remove dead code, add comments where non-obvious
-
-### Definition of Done:
-A judge can clone the repo, run `npm install && npm run seed && npm run dev`, and see a working product in under 5 minutes.
+- [ ] Demo video (Ronald handles this)
+- [ ] DoraHacks submission
+- [ ] Final repo check: no secrets, LICENSE, README polished
 
 ---
 
-## Phase 4 — Video & Submission (Mar 20 – Mar 22) 🎬
+## Why We Win
 
-**Goal:** Compelling 5-minute video + DoraHacks submission.
+| vs Others | Us |
+|-----------|-----|
+| Agent with wallet, no controls | Agent with wallet + 4-layer governance |
+| LLM decides finances | Statistical model detects anomalies, LLM explains |
+| Manual trigger | Fully autonomous loop with human escalation |
+| Single chain | Multi-chain (Ethereum + Polygon) |
+| Demo only | Working product with realtime dashboard |
 
-### Tasks:
-- [ ] Script the video: 30s problem → 1min solution → 2min live demo → 1min architecture → 30s why it matters
-- [ ] Record demo: screen capture of full flow (transaction → governance → approval → audit)
-- [ ] Record architecture walkthrough: show the 4 layers, explain why LLM doesn't decide numbers
-- [ ] Edit video: clean cuts, captions, professional
-- [ ] Upload to YouTube (unlisted)
-- [ ] DoraHacks submission: description, repo link, video link, team info
-- [ ] Final repo check: no secrets, LICENSE correct, README polished
-
-### Definition of Done:
-Submission on DoraHacks before Mar 22 23:59 UTC.
+**Key insight:** Tether is a stablecoin company. They care about financial rigor. An agent that operates autonomously BUT with auditable governance is exactly what their brand represents — stability, trust, control.
 
 ---
 
-## Success Criteria (from hackathon judging)
-
-| Criterion | How we score |
-|-----------|-------------|
-| **Agent Intelligence** | 4-layer architecture: rules + stats + LLM + human. Agent reasons, doesn't guess |
-| **WDK Integration** | Real transactions on testnet via WDK MCP Toolkit. Multi-chain |
-| **Technical Execution** | Clean code, tests, realtime UI, anomaly detection with real statistics |
-| **Agentic Payment Design** | Governance flow: auto-approve normal → flag anomalies → human decides edge cases |
-| **Originality** | Nobody else will present statistical anomaly detection + governance for agent wallets |
-| **Polish** | Premium dark UI, realtime updates, mobile responsive, clear documentation |
-| **Demo** | 5-min video: problem → solution → live demo → architecture |
-
----
-
-*Last updated: Feb 27, 2026*
+*Last updated: Mar 1, 2026 — Strategy pivot: reactive → autonomous agent*
