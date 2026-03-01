@@ -61,7 +61,7 @@ export async function interpretTransaction(
     ],
     response_format: { type: "json_object" },
     temperature: 0.1,
-    max_tokens: 500,
+    max_completion_tokens: 500,
   });
 
   const latencyMs = Date.now() - startTime;

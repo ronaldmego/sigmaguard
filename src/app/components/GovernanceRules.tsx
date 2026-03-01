@@ -1,0 +1,32 @@
+"use client";
+
+import type { GovernanceRule } from "@/types";
+import RuleCard from "./RuleCard";
+
+interface Props {
+  rules: GovernanceRule[];
+  onRuleUpdate: (
+    id: string,
+    config: Record<string, unknown>
+  ) => Promise<void>;
+}
+
+export default function GovernanceRules({ rules, onRuleUpdate }: Props) {
+  return (
+    <div id="rules">
+      <h2 className="text-sm font-medium text-gray-400 mb-3">
+        Governance Rules
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {rules.map((rule) => (
+          <RuleCard key={rule.id} rule={rule} onUpdate={onRuleUpdate} />
+        ))}
+      </div>
+      {rules.length === 0 && (
+        <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-8 text-center">
+          <p className="text-gray-600 text-sm">No governance rules configured</p>
+        </div>
+      )}
+    </div>
+  );
+}
