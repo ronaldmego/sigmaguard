@@ -49,3 +49,19 @@ Approach del agente autónomo: ¿LLM agent loop custom o framework existente?
 
 ---
 *Creado: 2026-03-01 por Pepa. Revisado por Ronald.*
+
+---
+
+## 🔍 Autocrítca — Somos nuestro propio juez
+
+Antes de hacer submission, nos hacemos estas preguntas como si fuéramos el jurado:
+
+1. **¿Esto gana el concurso?** No "¿funciona?" — eso es el mínimo. ¿GANA?
+2. **¿Qué diría el juez?** Technical correctness, agent autonomy, economic soundness, real-world applicability. ¿Somos fuertes en los 4?
+3. **¿El agente es autónomo de verdad?** ¿Opera solo? ¿Escala a humano solo cuando es necesario?
+4. **¿Tiene sentido económico?** ¿Un CFO diría "esto tiene lógica financiera"?
+5. **¿Un juez puede correrlo en 5 minutos?** Clone → install → seed → dev → funcionando.
+6. **¿Producto o tarea de universidad?** Premium, no hackathon-level.
+7. **¿Qué nos diferencia?** Si la respuesta es "nada especial", no competimos.
+
+**Regla:** No hacemos submission hasta que las 7 respuestas sean SÍ con evidencia.
