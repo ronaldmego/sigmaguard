@@ -138,7 +138,7 @@ Based on the above analysis, provide your interpretation and recommendation.`;
  * - If anomaly detected → MUST be at least "flag_for_review"
  * - LLM cannot downgrade from flag_for_review to auto_approve
  */
-function validateRecommendation(
+export function validateRecommendation(
   llmRecommendation: AgentRecommendation,
   rulesResult: RulesResult,
   anomalyResult: AnomalyResult
