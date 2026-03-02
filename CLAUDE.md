@@ -230,6 +230,7 @@ pepa-wallet-intelligence/
 │
 ├── scripts/
 │   ├── seed.ts            # Seed demo data (84 txs + 5 rules + 2 strategies)
+│   ├── simulate.ts        # 24h agent simulation in 5 min (12 ticks, market crash)
 │   ├── db-setup.ts        # Run migrations
 │   └── db-reset.ts        # Reset and reseed
 │
@@ -278,17 +279,17 @@ npm run dev
 
 ```bash
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+SUPABASE_URL=http://localhost:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # WDK
-WDK_SEED_PHRASE=        # ⚠️ TESTNET ONLY — never commit real seeds
+WDK_SEED_PHRASE=          # ⚠️ TESTNET ONLY — never commit real seeds
 WDK_NETWORK=testnet
-WDK_CHAINS=ethereum,polygon
 
 # LLM (for agent interpretation layer)
-OPENAI_API_KEY=your_key  # or ANTHROPIC_API_KEY
+OPENAI_API_KEY=sk-...
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:4007
@@ -309,8 +310,8 @@ npm run db:setup     # Run schema migrations
 npm run db:reset     # Reset and reseed
 
 # Demo
-npm run seed         # Seed sample data
-npm run simulate     # Run transaction simulation
+npm run seed         # Seed sample data (84 txs + 5 rules + 2 strategies)
+npm run simulate     # 24h agent simulation in ~5 min (12 ticks, market crash at tick 8)
 
 # Testing
 npm test             # Run all tests (111 tests)
