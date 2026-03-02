@@ -45,22 +45,22 @@
 
 ---
 
-## Phase 4 — Polish & Demo Prep 🎯 CURRENT (Mar 11 – Mar 18)
+## Phase 4 — Polish & Demo Prep ✅ COMPLETE (Mar 1 – Mar 2)
 
-### Tasks:
-- [x] Simulation script: fast-forward agent activity to show 24h of autonomous operation in 5 min
-- [x] Edge cases: market crash scenario (agent tries large sell → governance flags it)
-- [x] README with screenshots, architecture diagram, quick start for judges
-- [ ] Setup guide: judge runs locally in < 5 minutes
-- [ ] Code cleanup, comments, dead code removal
-- [ ] Test: clone fresh, `npm install && npm run seed && npm run dev` works first try
+**Delivered:**
+- Simulation script (`scripts/simulate.ts`): 12-tick simulation compresses 24h of agent activity into ~5 min
+- Market crash scenario at tick 8: $450 rebalance flagged (z-score 3.2), sent to approval queue
+- README rewritten with dashboard screenshot, architecture diagram, quick start for judges
+- Fresh clone test passed: `git clone → npm install → build → 111 tests → lint` all clean
+- Code audit: no unused imports, no dead code, no stray console.logs
+- `.gitignore` updated for temp screenshots and playwright artifacts
 
-### Definition of Done:
+### Definition of Done: ✅
 Judge clones repo, sees autonomous agent making governed trades in realtime within 5 minutes.
 
 ---
 
-## Phase 5 — Submission (Mar 19 – Mar 22)
+## Phase 5 — Submission 🎯 CURRENT (Mar 19 – Mar 22)
 
 - [ ] Demo video (Ronald handles this)
 - [ ] DoraHacks submission
@@ -82,4 +82,4 @@ Judge clones repo, sees autonomous agent making governed trades in realtime with
 
 ---
 
-*Last updated: Mar 1, 2026 — Phase 3 complete: autonomous DeFi agent with governance*
+*Last updated: Mar 2, 2026 — Phase 4 complete: polish, simulation, README, fresh clone verified*
