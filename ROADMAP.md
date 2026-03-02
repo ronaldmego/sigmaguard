@@ -48,9 +48,9 @@
 ## Phase 4 — Polish & Demo Prep 🎯 CURRENT (Mar 11 – Mar 18)
 
 ### Tasks:
-- [ ] Simulation script: fast-forward agent activity to show 24h of autonomous operation in 5 min
-- [ ] Edge cases: market crash scenario (agent tries large sell → governance flags it)
-- [ ] README with screenshots, architecture diagram, quick start for judges
+- [x] Simulation script: fast-forward agent activity to show 24h of autonomous operation in 5 min
+- [x] Edge cases: market crash scenario (agent tries large sell → governance flags it)
+- [x] README with screenshots, architecture diagram, quick start for judges
 - [ ] Setup guide: judge runs locally in < 5 minutes
 - [ ] Code cleanup, comments, dead code removal
 - [ ] Test: clone fresh, `npm install && npm run seed && npm run dev` works first try
