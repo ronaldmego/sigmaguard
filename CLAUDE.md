@@ -10,6 +10,7 @@
 - [Development Philosophy](#development-philosophy)
 - [Boris Dev Principles](#boris-dev-principles)
 - [Security](#security)
+- [Opensource Readiness](#opensource-readiness)
 - [Skills](#skills)
 - [Resources](#resources)
 
@@ -70,7 +71,7 @@ We don't just give an agent a wallet. We give it **rules, a statistical brain, a
 └──────────┬──────────────────────────────────────────────────┘
            │ WebSocket / SSE (realtime)
 ┌──────────▼──────────────────────────────────────────────────┐
-│                   Backend (Node.js / Express)                │
+│                   Backend (Next.js API Routes)               │
 │                                                              │
 │  ┌──────────────┐  ┌───────────────┐  ┌──────────────────┐  │
 │  │  Governance   │  │  Anomaly      │  │   LLM Agent      │  │
@@ -91,8 +92,10 @@ We don't just give an agent a wallet. We give it **rules, a statistical brain, a
 │  │transactions│ │governance │  │ approval │  │  agent    │  │
 │  │(audit log)│  │_rules     │  │ _queue   │  │ _decisions│  │
 │  └──────────┘  └───────────┘  └──────────┘  └───────────┘  │
-│                                                              │
-│  Realtime subscriptions for live UI updates                  │
+│  ┌──────────┐  ┌───────────┐                                │
+│  │  agent   │  │  agent    │  Realtime subscriptions for    │
+│  │_strategies│ │  _runs    │  live UI updates               │
+│  └──────────┘  └───────────┘                                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -101,7 +104,7 @@ We don't just give an agent a wallet. We give it **rules, a statistical brain, a
 | Component | Technology | Why |
 |-----------|-----------|-----|
 | **Frontend** | Next.js 14+ (App Router) | React ecosystem, SSR, modern |
-| **Backend** | Node.js + Express (or Next.js API routes) | Same language as WDK (TypeScript) |
+| **Backend** | Next.js API routes | Same runtime as WDK (TypeScript), no separate server |
 | **Database** | Supabase (PostgreSQL) | Realtime subscriptions, audit trail, free tier |
 | **Wallet** | Tether WDK + MCP Toolkit | 35 built-in tools, 13 chains, self-custodial |
 | **Anomaly Detection** | SQL functions + lightweight Python/TS | Z-score, IQR, moving averages |
@@ -161,49 +164,87 @@ pepa-wallet-intelligence/
 │   ├── app/               # Next.js app router (frontend)
 │   │   ├── page.tsx       # Dashboard home
 │   │   ├── layout.tsx     # Root layout
-│   │   └── components/    # React components
-│   │       ├── WalletOverview.tsx
-│   │       ├── TransactionFeed.tsx
-│   │       ├── ApprovalQueue.tsx
-│   │       ├── GovernanceRules.tsx
-│   │       └── AgentDecisionCard.tsx
+│   │   └── components/    # React components (14 total)
+│   │       ├── DashboardShell.tsx     # Layout with sidebar/tabs
+│   │       ├── WalletOverview.tsx     # Balances display
+│   │       ├── AnalyticsMini.tsx      # Summary stats
+│   │       ├── TransactionFeed.tsx    # Live tx feed
+│   │       ├── TransactionRow.tsx     # Single tx display
+│   │       ├── ApprovalQueue.tsx      # Pending approvals
+│   │       ├── ApprovalCard.tsx       # Single approval
+│   │       ├── GovernanceRules.tsx    # Rules management
+│   │       ├── RuleCard.tsx           # Single rule + inline edit
+│   │       ├── AgentDecisionCard.tsx  # LLM decision display
+│   │       ├── AgentPanel.tsx         # Start/stop autonomous agent
+│   │       ├── AgentActivityFeed.tsx  # Agent run history
+│   │       ├── PortfolioAllocation.tsx # Portfolio chart
+│   │       └── StatusBadge.tsx        # Status indicators
 │   │
-│   ├── api/               # Backend API routes
+│   ├── app/api/           # Next.js API routes (backend)
 │   │   ├── transactions/  # CRUD + trigger governance flow
-│   │   ├── rules/         # Governance rules management
-│   │   ├── approvals/     # Approval queue
-│   │   └── agent/         # LLM decision endpoint
+│   │   ├── rules/         # Governance rules management (+ [id])
+│   │   ├── approvals/     # Approval queue (+ [id])
+│   │   ├── wallet/        # WDK wallet balances
+│   │   └── agent/         # Autonomous agent control
+│   │       ├── start/     # Start agent loop
+│   │       ├── stop/      # Stop agent loop
+│   │       ├── status/    # Agent state + strategies
+│   │       └── history/   # Agent run history
 │   │
 │   ├── lib/
 │   │   ├── wdk/           # WDK integration layer
-│   │   │   ├── wallet.ts  # Wallet init, balance, send
-│   │   │   └── mcp.ts     # MCP toolkit setup
+│   │   │   ├── index.ts   # WDK init + send
+│   │   │   ├── wallet.ts  # Wallet balance
+│   │   │   └── chains.ts  # Chain configuration
 │   │   │
-│   │   ├── governance/    # Governance engine
-│   │   │   ├── rules.ts   # Fixed rules evaluator
-│   │   │   ├── anomaly.ts # Statistical anomaly detector
-│   │   │   └── agent.ts   # LLM interpretation layer
+│   │   ├── governance/    # 4-layer governance engine
+│   │   │   ├── rules.ts   # Layer 1: Fixed rules evaluator
+│   │   │   ├── anomaly.ts # Layer 2: Statistical anomaly detector
+│   │   │   ├── agent.ts   # Layer 3: LLM interpretation (GPT-5.2)
+│   │   │   └── pipeline.ts # Full pipeline orchestrator
+│   │   │
+│   │   ├── agent/         # Autonomous DeFi agent
+│   │   │   ├── autonomous.ts # Agent loop (singleton, setInterval)
+│   │   │   ├── strategies.ts # DCA + rebalance evaluators
+│   │   │   └── market.ts    # CoinGecko price fetcher (60s cache)
 │   │   │
 │   │   ├── db/            # Database layer
-│   │   │   ├── supabase.ts # Client setup
-│   │   │   ├── schema.sql  # Table definitions
+│   │   │   ├── supabase.ts # Client setup (service_role + anon)
 │   │   │   └── queries.ts  # Common queries
 │   │   │
-│   │   └── utils/         # Shared utilities
+│   │   └── utils/
+│   │       └── math.ts    # Z-score, IQR, moving average
 │   │
 │   └── types/             # TypeScript type definitions
+│       ├── index.ts       # Governance, transaction types
+│       └── database.ts    # Supabase table types
 │
-├── docs/                  # Public documentation
-│   ├── setup.md           # Detailed setup guide for judges
-│   └── api.md             # API reference
+├── migrations/            # SQL schema migrations
+│   ├── 001_initial_schema.sql   # Core tables (4)
+│   ├── 002_rls_policies.sql     # RLS + permissions
+│   └── 003_agent_tables.sql     # Agent tables (2)
+│
+├── docs/
+│   ├── testnet-setup.md          # Testnet wallet setup
+│   └── internal/                 # Internal strategy docs
 │
 ├── scripts/
-│   ├── seed.ts            # Seed demo data + test wallet
-│   └── simulate.ts        # Simulate transactions for demo
+│   ├── seed.ts            # Seed demo data (84 txs + 5 rules + 2 strategies)
+│   ├── db-setup.ts        # Run migrations
+│   └── db-reset.ts        # Reset and reseed
 │
 └── tests/
-    ├── governance.test.ts # Rules + anomaly detection tests
-    └── agent.test.ts      # Agent decision tests
+    ├── math.test.ts              # Z-score, IQR tests (22)
+    ├── fixtures/
+    │   └── governance.fixtures.ts
+    ├── governance/               # Governance pipeline tests (64)
+    │   ├── rules.test.ts
+    │   ├── anomaly.test.ts
+    │   ├── agent.test.ts
+    │   └── pipeline.test.ts
+    └── agent/                    # Autonomous agent tests (25)
+        ├── strategies.test.ts
+        └── market.test.ts
 ```
 
 ---
@@ -272,9 +313,10 @@ npm run seed         # Seed sample data
 npm run simulate     # Run transaction simulation
 
 # Testing
-npm test             # Run all tests
-npm run test:governance  # Test governance engine
-npm run test:anomaly     # Test anomaly detection
+npm test             # Run all tests (111 tests)
+npm run test:governance  # Test governance engine (64 tests)
+npm run test:agent       # Test autonomous agent (25 tests)
+npm run test:math        # Test statistical functions (22 tests)
 
 # Linting
 npm run lint         # ESLint
@@ -321,75 +363,68 @@ npm run type-check   # TypeScript check
 
 ## Boris Dev Principles
 
-> **Mandatory.** These rules apply to every project. They can only be adapted if the reason is documented in this file.
+> **Mandatory.** These questions apply to every project. They are criteria, not a checklist.
 
-### Workflow Orchestration
+### Workflow
 
-#### For AI coding agents working on this repo:
+> **Do I need a plan?**
+> More than 2 steps or architectural decisions? → Plan first, always. `tasks/todo.md`.
+> Something went wrong? → Stop. Re-plan. Don't keep pushing.
+> Am I assuming something I haven't verified?
 
-1. **Read this file first.** Always.
-2. **Check ROADMAP.md** for current phase and priorities.
-3. **One concern per commit.** Don't mix UI changes with backend logic.
-4. **Ask if unclear.** If requirements are ambiguous, stop and ask rather than guess.
+> **Am I using my resources well?**
+> Can I delegate to a subagent to keep context clean?
+> Am I solving too many things at once? → One task per subagent.
 
-#### Key decisions already made:
+> **Am I learning from my mistakes?**
+> User corrected me → did I update `tasks/lessons.md`?
+> Did I review lessons at session start?
+
+> **Is this actually done?**
+> Can I DEMONSTRATE it works? → Tests, logs, screenshots.
+> Would a staff engineer approve this PR without comments?
+> Did I test happy path AND error path?
+
+> **Is this the best solution or the first that worked?**
+> Would I write it this way if 1000 people would read it?
+> Surgical fix or duct tape?
+> For simple changes, don't over-engineer — simplicity is also elegance.
+
+> **Can I resolve this without hand-holding?**
+> Bug? → Read logs, find root cause, fix it. Don't ask how.
+> CI fails? → Go fix it without waiting for instructions.
+
+### Task Management
+
+1. **Plan First:** `tasks/todo.md` with checkable items
+2. **Verify Plan:** Check in before implementing
+3. **Track Progress:** Mark items complete as you go
+4. **Explain Changes:** High-level summary at each step
+5. **Document Results:** Review section in todo.md
+6. **Capture Lessons:** Update `tasks/lessons.md` after corrections
+
+### Core Principles
+
+> **Is there a simpler way?** If yes, why am I not using it?
+
+> **Symptom or cause?** If I had to bet money this won't come back, would I?
+
+> **How many files did I touch?** If more than necessary, what's extra?
+
+### Project-Specific Adaptations
+
+**For AI coding agents working on this repo:**
+1. Read this file first. Always.
+2. Check `ROADMAP.md` for current phase and priorities.
+3. One concern per commit. Don't mix UI changes with backend logic.
+4. If requirements are ambiguous, stop and ask rather than guess.
+
+**Key decisions already made:**
 - Supabase over SQLite (realtime subscriptions needed)
 - Next.js over plain React (SSR + API routes in one)
 - WDK MCP Toolkit for wallet ops (don't reinvent)
 - Statistical model for anomaly detection (not LLM)
 - 4-layer governance architecture (rules → stats → agent → human)
-
-#### 1. Plan Mode Default
-- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately — don't keep pushing
-- Use plan mode for verification steps, not just building
-- Write detailed specs upfront to reduce ambiguity
-
-#### 2. Subagent Strategy
-- Use subagents liberally to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- For complex problems, throw more compute at it via subagents
-- One task per subagent for focused execution
-
-#### 3. Self-Improvement Loop
-- After ANY correction from the user: update `tasks/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
-
-#### 4. Verification Before Done
-- Never mark a task complete without proving it works
-- Diff behavior between main and your changes when relevant
-- Ask yourself: "Would a staff engineer approve this?"
-- Run tests, check logs, demonstrate correctness
-
-#### 5. Demand Elegance (Balanced)
-- For non-trivial changes: pause and ask "is there a more elegant way?"
-- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-- Skip this for simple, obvious fixes — don't over-engineer
-- Challenge your own work before presenting it
-
-#### 6. Autonomous Bug Fixing
-- When given a bug report: just fix it. Don't ask for hand-holding
-- Point at logs, errors, failing tests — then resolve them
-- Zero context switching required from the user
-- Go fix failing CI tests without being told how
-
-### Task Management
-
-1. **Plan First:** Write plan to `tasks/todo.md` with checkable items
-2. **Verify Plan:** Check in before starting implementation
-3. **Track Progress:** Mark items complete as you go
-4. **Explain Changes:** High-level summary at each step
-5. **Document Results:** Add review section to `tasks/todo.md`
-6. **Capture Lessons:** Update `tasks/lessons.md` after corrections
-
-### Core Principles
-
-- **Simplicity First:** Make every change as simple as possible. Impact minimal code.
-- **No Laziness:** Find root causes. No temporary fixes. Senior developer standards.
-- **Minimal Impact:** Changes should only touch what's necessary. Avoid introducing bugs.
-- **Timeless documentation:** This file contains vision, architecture, and conventions. No bugs, TODOs, or feature status here — those belong in issues or ROADMAP.md.
 
 ---
 
@@ -407,6 +442,18 @@ npm run type-check   # TypeScript check
 - The seed script generates a NEW testnet wallet — no real funds involved
 - All demo transactions use testnet tokens
 - No external services are required beyond Supabase (can use local or cloud)
+
+---
+
+## Opensource Readiness
+
+This repo is **public** (hackathon submission for judges). Before any significant public-facing change, verify:
+- No secrets in code, commits, or issues (check with `git log --all -p | grep -i "key\|secret\|password"`)
+- `.env.example` has only placeholders, never real values
+- LICENSE file present (Apache 2.0)
+- README is clear for external readers (English)
+
+> Full checklist: `~/.claude/opensource-readiness.md`
 
 ---
 
