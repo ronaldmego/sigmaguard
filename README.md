@@ -178,7 +178,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:4007
 
 ## Team
 
-Built by [Ronald Mego](https://ronaldmego.com) — Head of Data Analytics @ Millicom | Tigo. 15+ years in data, telecom, and AI.
+Built by [Ronald Mego](https://ronaldmego.com) — Founder @ [GalacticaIA](https://galacticaia.com). 15+ years in data governance, AI, and enterprise systems.
 
 ## License
 
