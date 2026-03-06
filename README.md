@@ -1,5 +1,9 @@
 # PEPA Wallet Intelligence
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-111_passing-brightgreen.svg)](#testing)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
+
 **Autonomous DeFi agent with 4-layer governance — because AI agents that handle money need more than "hope for the best."**
 
 > Hackathon Galactica 2026 | Track: Autonomous DeFi Agent + Agent Wallets | Built with [Tether WDK](https://docs.wdk.tether.io)
@@ -28,6 +32,13 @@ PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfo
 **The key insight:** The LLM does NOT decide if a transaction is risky. The statistical model decides. The LLM translates:
 
 > *"This $450 rebalance is 3.2 standard deviations above your average of $4.85 for agent operations. The market crashed 18%, triggering an emergency portfolio rebalance. Do you want to approve?"*
+
+## Prerequisites
+
+- **Node.js >= 18** (recommended: 20 LTS)
+- **npm >= 9**
+- A Supabase instance (cloud or self-hosted)
+- OpenAI API key (for the LLM interpreter layer)
 
 ## Quick Start (< 5 minutes)
 
@@ -168,6 +179,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 # Tether WDK
 WDK_SEED_PHRASE=            # Testnet only — never commit real seeds
+WDK_NETWORK=testnet
 
 # OpenAI (LLM interpreter layer)
 OPENAI_API_KEY=sk-...
