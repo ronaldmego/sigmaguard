@@ -35,6 +35,9 @@ const PRICE_MULTIPLIERS: { eth: number; matic: number }[] = [
   { eth: 0.985, matic: 0.988 },  // Tick 12: near-recovery
 ];
 
+// DCA amounts per tick in USDT (variable for visual interest on chart)
+const DCA_AMOUNTS = [3.20, 2.80, 4.50, 3.60, 5.10, 2.40, 4.80, 3.90, 0, 3.10, 5.40, 2.70];
+
 // Simulation scenario per tick
 interface TickScenario {
   dca: "transfer" | "hold";
@@ -45,18 +48,18 @@ interface TickScenario {
 }
 
 const SCENARIOS: TickScenario[] = [
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 8.2  },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 10.1 },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 7.5  },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 12.3 },
-  { dca: "transfer", rebalance: "transfer", rebalanceAmount: 3.2, flagged: false, driftPct: 16.8 },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 11.4 },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 9.7  },
-  { dca: "transfer", rebalance: "transfer", rebalanceAmount: 450, flagged: true,  driftPct: 28.5 },
-  { dca: "hold",     rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 14.2 },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 11.8 },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 8.9  },
-  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,   flagged: false, driftPct: 6.3  },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 8.2  },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 10.1 },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 7.5  },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 12.3 },
+  { dca: "transfer", rebalance: "transfer", rebalanceAmount: 9.50, flagged: false, driftPct: 16.8 },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 11.4 },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 9.7  },
+  { dca: "transfer", rebalance: "transfer", rebalanceAmount: 35,   flagged: true,  driftPct: 28.5 },
+  { dca: "hold",     rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 14.2 },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 11.8 },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 8.9  },
+  { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 6.3  },
 ];
 
 // ============================================================
@@ -111,11 +114,11 @@ function buildAnomalyResult(isAnomaly: boolean, amount: number) {
       iqr_outlier: true,
       method: "z_score" as const,
       percentile: 99.4,
-      historical_mean: 1.40,
-      historical_std: 0.90,
+      historical_mean: 3.80,
+      historical_std: 1.10,
       sample_size: 84,
       threshold: 2.0,
-      reason: `Amount $${amount} is 3.2 standard deviations above the mean of $1.40 for agent_autonomous transactions`,
+      reason: `Amount $${amount} is 3.2 standard deviations above the mean of $3.80 for agent_autonomous transactions`,
     };
   }
   const zScore = Math.round((Math.random() * 0.8 + 0.1) * 100) / 100;
@@ -143,8 +146,8 @@ function buildGovernanceResult(isAnomaly: boolean, amount: number) {
     anomaly_result: anomalyResult,
     agent_interpretation: {
       explanation: isAnomaly
-        ? `This $${amount} rebalance transaction is 3.2 standard deviations above your average of $1.40 for autonomous agent operations. The market crash triggered a large portfolio rebalance. I recommend human review before execution.`
-        : `Routine DCA transfer of 0.001 ETH to vault. Amount is within normal operating range (z-score: ${anomalyResult.z_score}). Auto-approved.`,
+        ? `This $${amount} rebalance transaction is 3.2 standard deviations above your average of $3.80 for autonomous agent operations. The market crash triggered a large portfolio rebalance. I recommend human review before execution.`
+        : `Routine DCA transfer of $${amount.toFixed(2)} USDT to vault. Amount is within normal operating range (z-score: ${anomalyResult.z_score}). Auto-approved.`,
       recommendation: finalOutcome,
       confidence: isAnomaly ? 0.92 : 0.98,
       model_used: "simulation",
@@ -229,7 +232,7 @@ async function main() {
     console.log(`[Tick ${String(tick + 1).padStart(2, " ")}/${TOTAL_TICKS}]  ${time}  ETH $${ethPrice.toLocaleString()} | MATIC $${maticPrice}`);
 
     // --- DCA agent run ---
-    const dcaAmount = 0.001;
+    const dcaAmount = DCA_AMOUNTS[tick];
     const dcaGovernance = buildGovernanceResult(false, dcaAmount);
     let dcaTxId: string | null = null;
 
@@ -241,10 +244,10 @@ async function main() {
           wallet_address: walletAddress,
           recipient: VAULT_ADDRESS,
           amount: dcaAmount,
-          currency: "ETH",
+          currency: "USDT",
           chain: "ethereum-sepolia",
           category: "agent_autonomous",
-          description: `DCA: Transfer ${dcaAmount} ETH to vault`,
+          description: `DCA: Buy $${dcaAmount.toFixed(2)} USDT worth of ETH to vault`,
           status: "executed",
           tx_hash: generateTxHash(),
           governance_result: dcaGovernance,
@@ -271,7 +274,7 @@ async function main() {
         });
       }
 
-      console.log(`  DCA:       TRANSFER ${dcaAmount} ETH → vault | auto_approve`);
+      console.log(`  DCA:       TRANSFER $${dcaAmount.toFixed(2)} USDT → vault | auto_approve`);
     } else {
       console.log("  DCA:       HOLD (cooldown after market crash)");
     }
@@ -283,7 +286,7 @@ async function main() {
       market_data: marketData,
       decision: scenario.dca,
       decision_reason: scenario.dca === "transfer"
-        ? `DCA interval elapsed. Transferring ${dcaAmount} ETH at $${ethPrice}/ETH.`
+        ? `DCA interval elapsed. Buying $${dcaAmount.toFixed(2)} USDT worth of ETH at $${ethPrice}/ETH.`
         : "Market crash cooldown. Skipping DCA transfer to avoid buying into a falling market.",
       transaction_id: dcaTxId,
       governance_outcome: scenario.dca === "transfer" ? "auto_approve" : null,
@@ -307,7 +310,7 @@ async function main() {
           wallet_address: walletAddress,
           recipient: VAULT_ADDRESS,
           amount: rebalanceAmount,
-          currency: "ETH",
+          currency: "USDT",
           chain: "ethereum-sepolia",
           category: "agent_autonomous",
           description: isAnomaly
@@ -343,7 +346,7 @@ async function main() {
             transaction_id: rebalanceTxId,
             reason: `Statistical anomaly detected (z-score: 3.2). Amount $${rebalanceAmount} is 3.2σ above average.`,
             flag_source: "anomaly",
-            agent_explanation: `This $${rebalanceAmount} rebalance is 3.2 standard deviations above your average of $1.40 for autonomous agent operations. The market crashed ~18%, triggering an emergency portfolio rebalance. The amount is significantly larger than typical agent transfers ($0.50-3 range). I recommend human review before execution to confirm this large rebalance aligns with your risk tolerance.`,
+            agent_explanation: `This $${rebalanceAmount} rebalance is 3.2 standard deviations above your average of $3.80 for autonomous agent operations. The market crashed ~18%, triggering an emergency portfolio rebalance. The amount is significantly larger than typical agent transfers ($2-6 range). I recommend human review before execution to confirm this large rebalance aligns with your risk tolerance.`,
             anomaly_details: rebalanceGovernance.anomaly_result,
             status: "pending",
           });
