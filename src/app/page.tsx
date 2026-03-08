@@ -160,11 +160,11 @@ export default function Home() {
               <PortfolioAllocation wallets={wallets} />
             </div>
           </div>
+          {/* Governance Anomaly Detection Chart */}
+          <GovernanceChart transactions={transactions} />
+
           <AgentActivityFeed />
         </div>
-
-        {/* Governance Anomaly Detection Chart */}
-        <GovernanceChart transactions={transactions} />
 
         {/* Approval Queue (only shows if pending items exist) */}
         <ApprovalQueue

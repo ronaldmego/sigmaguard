@@ -41,14 +41,14 @@ export default function WalletOverview({
   return (
     <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-5 h-full">
       <h2 className="text-sm font-medium text-gray-400 mb-4">Wallet</h2>
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
         {wallets.map((w) => (
           <div key={w.chain}>
             <p className="text-xs text-gray-500 mb-1">
               {CHAIN_LABELS[w.chain] || w.chain}
             </p>
             <p
-              className={`text-2xl font-bold ${CHAIN_COLORS[w.chain] || "text-gray-200"}`}
+              className={`text-xl font-bold ${CHAIN_COLORS[w.chain] || "text-gray-200"}`}
             >
               {parseFloat(w.nativeBalance).toFixed(4)}{" "}
               <span className="text-sm font-normal text-gray-500">
