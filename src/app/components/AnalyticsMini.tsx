@@ -8,37 +8,47 @@ interface Props {
 }
 
 export default function AnalyticsMini({ transactions, pendingCount }: Props) {
-  const executedTxs = transactions.filter((t) => t.status === "executed");
-  const totalSpend = executedTxs.reduce((sum, t) => sum + t.amount, 0);
+  // Governed transactions = those that went through the pipeline (have governance_result)
+  const governedTxs = transactions.filter((t) => t.governance_result != null);
 
-  const anomalyCount = transactions.filter(
+  const anomalyCount = governedTxs.filter(
     (t) => t.governance_result?.anomaly_result?.is_anomaly
   ).length;
   const anomalyRate =
-    transactions.length > 0
-      ? ((anomalyCount / transactions.length) * 100).toFixed(1)
+    governedTxs.length > 0
+      ? ((anomalyCount / governedTxs.length) * 100).toFixed(1)
       : "0";
+
+  const totalSpend = transactions.reduce(
+    (sum, t) => sum + Number(t.amount),
+    0
+  );
 
   const stats = [
     {
       label: "Total Spend",
-      value: `$${totalSpend.toFixed(2)}`,
+      value: `$${totalSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      color: "text-cyan-400",
+    },
+    {
+      label: "Transactions",
+      value: String(transactions.length),
       color: "text-violet-400",
     },
     {
       label: "Anomaly Rate",
       value: `${anomalyRate}%`,
-      color: "text-cyan-400",
+      color: anomalyCount > 0 ? "text-[#ea580c]" : "text-cyan-400",
     },
     {
       label: "Pending Approvals",
       value: String(pendingCount),
-      color: pendingCount > 0 ? "text-copper-400" : "text-emerald-400",
+      color: pendingCount > 0 ? "text-[#ea580c]" : "text-emerald-400",
     },
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3 h-full">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-full">
       {stats.map((s) => (
         <div
           key={s.label}

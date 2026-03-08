@@ -72,33 +72,33 @@ const RULES = [
 const CATEGORIES: Record<string, { merchants: string[]; minAmount: number; maxAmount: number }> = {
   food: {
     merchants: ["uber_eats", "doordash", "mcdonalds", "starbucks", "chipotle"],
-    minAmount: 5,
-    maxAmount: 45,
+    minAmount: 0.10,
+    maxAmount: 0.90,
   },
   transport: {
     merchants: ["uber", "lyft", "shell_gas", "parking_co"],
-    minAmount: 5,
-    maxAmount: 60,
+    minAmount: 0.10,
+    maxAmount: 1.20,
   },
   shopping: {
     merchants: ["amazon", "target", "walmart", "best_buy"],
-    minAmount: 10,
-    maxAmount: 200,
+    minAmount: 0.20,
+    maxAmount: 4.00,
   },
   subscription: {
     merchants: ["netflix", "spotify", "openai", "github", "aws"],
-    minAmount: 5,
-    maxAmount: 30,
+    minAmount: 0.10,
+    maxAmount: 0.60,
   },
   utilities: {
     merchants: ["electric_co", "water_dept", "internet_isp"],
-    minAmount: 30,
-    maxAmount: 150,
+    minAmount: 0.60,
+    maxAmount: 3.00,
   },
   transfer: {
     merchants: ["peer_alice", "peer_bob", "peer_charlie"],
-    minAmount: 10,
-    maxAmount: 100,
+    minAmount: 0.20,
+    maxAmount: 2.00,
   },
 };
 
@@ -167,7 +167,7 @@ function generateAnomalousTransactions(walletAddress: string) {
     {
       wallet_address: walletAddress,
       recipient: "0xABCD1234567890abcdef1234567890abcdef1234",
-      amount: 350.00,
+      amount: 5.80,
       currency: "USDT",
       chain: "ethereum-sepolia",
       category: "food",
@@ -182,7 +182,7 @@ function generateAnomalousTransactions(walletAddress: string) {
     {
       wallet_address: walletAddress,
       recipient: "0xDEAD0000000000000000000000000000DEADbeef",
-      amount: 499.99,
+      amount: 8.30,
       currency: "USDT",
       chain: "ethereum-sepolia",
       category: "subscription",
@@ -197,7 +197,7 @@ function generateAnomalousTransactions(walletAddress: string) {
     {
       wallet_address: walletAddress,
       recipient: "0xBEEF0000000000000000000000000000BEEFcafe",
-      amount: 450.00,
+      amount: 7.50,
       currency: "USDT",
       chain: "ethereum-sepolia",
       category: "transfer",
@@ -212,7 +212,7 @@ function generateAnomalousTransactions(walletAddress: string) {
     {
       wallet_address: walletAddress,
       recipient: "0xCAFE0000000000000000000000000000CAFEbabe",
-      amount: 480.00,
+      amount: 8.00,
       currency: "USDT",
       chain: "ethereum-sepolia",
       category: "shopping",

@@ -111,11 +111,11 @@ function buildAnomalyResult(isAnomaly: boolean, amount: number) {
       iqr_outlier: true,
       method: "z_score" as const,
       percentile: 99.4,
-      historical_mean: 4.85,
-      historical_std: 2.10,
+      historical_mean: 1.40,
+      historical_std: 0.90,
       sample_size: 84,
       threshold: 2.0,
-      reason: `Amount $${amount} is 3.2 standard deviations above the mean of $4.85 for agent_autonomous transactions`,
+      reason: `Amount $${amount} is 3.2 standard deviations above the mean of $1.40 for agent_autonomous transactions`,
     };
   }
   const zScore = Math.round((Math.random() * 0.8 + 0.1) * 100) / 100;
@@ -143,7 +143,7 @@ function buildGovernanceResult(isAnomaly: boolean, amount: number) {
     anomaly_result: anomalyResult,
     agent_interpretation: {
       explanation: isAnomaly
-        ? `This $${amount} rebalance transaction is 3.2 standard deviations above your average of $4.85 for autonomous agent operations. The market crash triggered a large portfolio rebalance. I recommend human review before execution.`
+        ? `This $${amount} rebalance transaction is 3.2 standard deviations above your average of $1.40 for autonomous agent operations. The market crash triggered a large portfolio rebalance. I recommend human review before execution.`
         : `Routine DCA transfer of 0.001 ETH to vault. Amount is within normal operating range (z-score: ${anomalyResult.z_score}). Auto-approved.`,
       recommendation: finalOutcome,
       confidence: isAnomaly ? 0.92 : 0.98,
@@ -343,7 +343,7 @@ async function main() {
             transaction_id: rebalanceTxId,
             reason: `Statistical anomaly detected (z-score: 3.2). Amount $${rebalanceAmount} is 3.2σ above average.`,
             flag_source: "anomaly",
-            agent_explanation: `This $${rebalanceAmount} rebalance is 3.2 standard deviations above your average of $4.85 for autonomous agent operations. The market crashed ~18%, triggering an emergency portfolio rebalance. The amount is significantly larger than typical agent transfers ($2-5 range). I recommend human review before execution to confirm this large rebalance aligns with your risk tolerance.`,
+            agent_explanation: `This $${rebalanceAmount} rebalance is 3.2 standard deviations above your average of $1.40 for autonomous agent operations. The market crashed ~18%, triggering an emergency portfolio rebalance. The amount is significantly larger than typical agent transfers ($0.50-3 range). I recommend human review before execution to confirm this large rebalance aligns with your risk tolerance.`,
             anomaly_details: rebalanceGovernance.anomaly_result,
             status: "pending",
           });
