@@ -12,6 +12,7 @@ import AgentActivityFeed from "./components/AgentActivityFeed";
 import TransactionFeed from "./components/TransactionFeed";
 import ApprovalQueue from "./components/ApprovalQueue";
 import GovernanceRules from "./components/GovernanceRules";
+import GovernanceChart from "./components/GovernanceChart";
 
 interface WalletInfo {
   chain: string;
@@ -161,6 +162,9 @@ export default function Home() {
           </div>
           <AgentActivityFeed />
         </div>
+
+        {/* Governance Anomaly Detection Chart */}
+        <GovernanceChart transactions={transactions} />
 
         {/* Approval Queue (only shows if pending items exist) */}
         <ApprovalQueue
