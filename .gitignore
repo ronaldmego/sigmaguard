@@ -16,8 +16,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# internal agent instructions (never commit to public repos)
+# internal docs and agent instructions (never commit to public repos)
 CLAUDE.md
+docs/internal/
 
 # misc
 .DS_Store
