@@ -46,6 +46,8 @@ export default function AgentPanel() {
   }
 
   const isRunning = data?.status === "running";
+  const isSimulationActive = !isRunning && data?.has_recent_activity === true;
+  const isOperating = isRunning || isSimulationActive;
 
   // Countdown to next run
   const [countdown, setCountdown] = useState<string | null>(null);
@@ -76,7 +78,7 @@ export default function AgentPanel() {
         <div className="flex items-center gap-2">
           <span
             className={`w-2 h-2 rounded-full ${
-              isRunning
+              isOperating
                 ? "bg-emerald-500 animate-live-pulse"
                 : data?.status === "error"
                   ? "bg-red-500"
@@ -84,7 +86,7 @@ export default function AgentPanel() {
             }`}
           />
           <span className="text-xs text-gray-500 capitalize">
-            {data?.status ?? "loading"}
+            {isSimulationActive ? "simulation running" : (data?.status ?? "loading")}
           </span>
         </div>
       </div>
@@ -130,10 +132,18 @@ export default function AgentPanel() {
         </p>
       )}
 
+      {/* Simulation active indicator */}
+      {isSimulationActive && (
+        <div className="mb-4 px-3 py-2 bg-violet-500/5 border border-violet-500/20 rounded-lg flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-violet-500 animate-live-pulse" />
+          <p className="text-xs text-violet-400">Agent operating via simulation</p>
+        </div>
+      )}
+
       {/* Start / Stop button */}
       <button
         onClick={handleToggle}
-        disabled={actionLoading || !data}
+        disabled={actionLoading || !data || isSimulationActive}
         className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
           isRunning
             ? "bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20"
@@ -142,9 +152,11 @@ export default function AgentPanel() {
       >
         {actionLoading
           ? "..."
-          : isRunning
-            ? "Stop Agent"
-            : "Start Agent"}
+          : isSimulationActive
+            ? "Agent Operating"
+            : isRunning
+              ? "Stop Agent"
+              : "Start Agent"}
       </button>
     </div>
   );

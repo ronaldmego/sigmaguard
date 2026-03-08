@@ -423,6 +423,17 @@ export async function getAgentRunHistory(options?: {
   return (data ?? []) as AgentRun[];
 }
 
+export async function hasRecentAgentActivity(windowMinutes = 2): Promise<boolean> {
+  const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
+  const { count, error } = await db()
+    .from("agent_runs")
+    .select("*", { count: "exact", head: true })
+    .gte("created_at", since);
+
+  if (error) return false;
+  return (count ?? 0) > 0;
+}
+
 export async function getAgentRunStats(): Promise<{
   total: number;
   transfers: number;
