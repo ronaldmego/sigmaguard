@@ -125,10 +125,10 @@ export default function Home() {
         <div id="overview" className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
-              PEPA Wallet Intelligence
+              AI-Governed DeFi Agent
             </h1>
             <p className="text-xs text-gray-500 mt-1">
-              AI-governed wallet — 4-layer transaction governance
+              Autonomous wallet — 4-layer transaction governance
             </p>
           </div>
           <div className="flex items-center gap-1.5">
