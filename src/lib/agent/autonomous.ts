@@ -11,6 +11,7 @@ import {
   insertAgentRun,
   updateStrategyLastExecution,
   getAgentRunStats,
+  hasRecentAgentActivity,
 } from "@/lib/db/queries";
 
 // ============================================================
@@ -65,8 +66,11 @@ export function stopAgent(): { status: AgentStatus } {
 }
 
 export async function getAgentStatus(): Promise<AgentStatusInfo> {
-  const strategies = await getAllStrategies();
-  const runStats = await getAgentRunStats();
+  const [strategies, runStats, recentActivity] = await Promise.all([
+    getAllStrategies(),
+    getAgentRunStats(),
+    hasRecentAgentActivity(2),
+  ]);
 
   const activeCount = strategies.filter((s) => s.is_active).length;
 
@@ -83,6 +87,7 @@ export async function getAgentStatus(): Promise<AgentStatusInfo> {
     interval_seconds: intervalSeconds,
     strategies: { total: strategies.length, active: activeCount },
     runs: runStats,
+    has_recent_activity: recentActivity,
   };
 }
 

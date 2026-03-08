@@ -157,6 +157,15 @@ export async function processTransaction(
 export async function executeApprovedTransaction(
   transaction: Transaction
 ): Promise<Transaction> {
+  // Simulated transactions skip WDK execution — just mark as executed
+  const isSimulated =
+    transaction.governance_result?.agent_interpretation?.model_used === "simulation";
+
+  if (isSimulated) {
+    const simulatedHash = `0xsim_${transaction.id.replace(/-/g, "").slice(0, 40)}`;
+    return await updateTransactionStatus(transaction.id, "executed", simulatedHash);
+  }
+
   try {
     const amountWei = parseAmountToWei(transaction.amount);
     const result = await wdkSend(

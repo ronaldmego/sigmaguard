@@ -60,6 +60,8 @@ export default function Home() {
 
   useEffect(() => {
     fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
   }, [fetchData]);
 
   const handleRefresh = useCallback(() => {

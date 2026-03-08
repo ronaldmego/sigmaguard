@@ -224,4 +224,5 @@ export interface AgentStatusInfo {
   interval_seconds: number;
   strategies: { total: number; active: number };
   runs: { total: number; transfers: number };
+  has_recent_activity: boolean;
 }
