@@ -13,6 +13,7 @@ import TransactionFeed from "./components/TransactionFeed";
 import ApprovalQueue from "./components/ApprovalQueue";
 import GovernanceRules from "./components/GovernanceRules";
 import GovernanceChart from "./components/GovernanceChart";
+import DemoBanner from "./components/DemoBanner";
 
 interface WalletInfo {
   chain: string;
@@ -29,6 +30,7 @@ export default function Home() {
   const [rules, setRules] = useState<GovernanceRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [demoBannerVisible, setDemoBannerVisible] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -119,8 +121,10 @@ export default function Home() {
   }
 
   return (
+    <>
+    <DemoBanner onVisibilityChange={setDemoBannerVisible} />
     <DashboardShell pendingCount={approvals.length}>
-      <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
+      <div className={`p-4 md:p-6 space-y-6 max-w-6xl mx-auto ${demoBannerVisible ? "pt-14 md:pt-16" : ""}`}>
         {/* Header */}
         <div id="overview" className="flex items-center justify-between">
           <div>
@@ -131,7 +135,7 @@ export default function Home() {
               Autonomous wallet — 4-layer transaction governance
             </p>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mr-24">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live-pulse" />
             <span className="text-xs text-gray-500">Testnet</span>
           </div>
@@ -182,5 +186,6 @@ export default function Home() {
         <GovernanceRules rules={rules} onRuleUpdate={handleRuleUpdate} />
       </div>
     </DashboardShell>
+    </>
   );
 }

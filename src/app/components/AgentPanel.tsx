@@ -10,6 +10,12 @@ interface AgentStatusResponse extends AgentStatusInfo {
 export default function AgentPanel() {
   const [data, setData] = useState<AgentStatusResponse | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setIsDemo(params.get("demo") === "true");
+  }, []);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -143,7 +149,7 @@ export default function AgentPanel() {
       {/* Start / Stop button */}
       <button
         onClick={handleToggle}
-        disabled={actionLoading || !data || isSimulationActive}
+        disabled={actionLoading || !data || isSimulationActive || isDemo}
         className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
           isRunning
             ? "bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20"
@@ -156,7 +162,9 @@ export default function AgentPanel() {
             ? "Agent Operating"
             : isRunning
               ? "Stop Agent"
-              : "Start Agent"}
+              : isDemo
+                ? "Use Run Demo above"
+                : "Start Agent"}
       </button>
     </div>
   );
