@@ -147,7 +147,7 @@ export function makeAgentInterpretation(
     explanation: "Transaction is within normal parameters.",
     recommendation: "auto_approve",
     confidence: 0.95,
-    model_used: "gpt-5.2",
+    model_used: "claude-sonnet-4-6",
     tokens_used: 150,
     latency_ms: 450,
     raw_prompt: "test prompt",
