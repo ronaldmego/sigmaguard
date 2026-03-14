@@ -22,6 +22,7 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@supabase/supabase-js": "^2.98.0",
     "@tetherto/wdk": "1.0.0-beta.5",
+    "@tetherto/wdk-protocol-lending-aave-evm": "^1.0.0-beta.3",
     "@tetherto/wdk-protocol-swap-velora-evm": "^1.0.0-beta.4",
     "@tetherto/wdk-wallet-evm": "1.0.0-beta.8",
     "dotenv": "^17.3.1",
