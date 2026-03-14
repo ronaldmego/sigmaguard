@@ -9,7 +9,6 @@ export default function AgentActivityFeed() {
   const [runs, setRuns] = useState<AgentRun[]>([]);
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
 
-  // Fetch initial history
   useEffect(() => {
     async function load() {
       try {
@@ -25,7 +24,6 @@ export default function AgentActivityFeed() {
     load();
   }, []);
 
-  // Realtime subscription
   useEffect(() => {
     const client = getBrowserClient();
     const channel = client
@@ -57,11 +55,11 @@ export default function AgentActivityFeed() {
 
   if (runs.length === 0) {
     return (
-      <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-5">
-        <h2 className="text-sm font-medium text-gray-400 mb-3">
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <h2 className="text-sm font-medium text-gray-500 mb-3">
           Agent Activity
         </h2>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-gray-400">
           No agent runs yet. Start the agent to see activity.
         </p>
       </div>
@@ -69,8 +67,8 @@ export default function AgentActivityFeed() {
   }
 
   return (
-    <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-5">
-      <h2 className="text-sm font-medium text-gray-400 mb-3">
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <h2 className="text-sm font-medium text-gray-500 mb-3">
         Agent Activity
       </h2>
       <div className="max-h-[320px] overflow-y-auto space-y-2 pr-1 scrollbar-thin">
@@ -79,16 +77,16 @@ export default function AgentActivityFeed() {
             key={run.id}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${
               newIds.has(run.id)
-                ? "bg-violet-500/10 border-violet-500/30 animate-slide-in"
-                : "bg-[#0a0a14] border-gray-800/30"
+                ? "bg-brand-50 border-brand-200 animate-slide-in"
+                : "bg-gray-50 border-gray-100"
             }`}
           >
             {/* Decision icon */}
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
                 run.decision === "transfer"
-                  ? "bg-cyan-500/15 text-cyan-400"
-                  : "bg-gray-500/15 text-gray-500"
+                  ? "bg-accent-50 text-accent-600"
+                  : "bg-gray-100 text-gray-400"
               }`}
             >
               {run.decision === "transfer" ? (
@@ -126,13 +124,13 @@ export default function AgentActivityFeed() {
                   <StatusBadge status={run.governance_outcome} />
                 )}
               </div>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-gray-400 truncate">
                 {run.decision_reason}
               </p>
             </div>
 
             {/* Timestamp */}
-            <span className="text-[10px] text-gray-600 flex-shrink-0">
+            <span className="text-[10px] text-gray-400 flex-shrink-0">
               {new Date(run.created_at).toLocaleTimeString()}
             </span>
           </div>

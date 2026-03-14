@@ -68,23 +68,23 @@ export default function RuleCard({ rule, onUpdate }: Props) {
   }
 
   return (
-    <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-4">
+    <div className="bg-white border border-gray-200 rounded-xl p-4">
       <div className="flex items-start gap-3">
         <span className="text-lg leading-none mt-0.5">
           {RULE_ICONS[rule.rule_type] || "\uD83D\uDCCB"}
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <p className="font-medium text-gray-200 text-sm truncate">
+            <p className="font-medium text-gray-800 text-sm truncate">
               {rule.name}
             </p>
             <span
-              className={`w-2 h-2 rounded-full shrink-0 ${rule.is_active ? "bg-emerald-500" : "bg-gray-600"}`}
+              className={`w-2 h-2 rounded-full shrink-0 ${rule.is_active ? "bg-brand-500" : "bg-gray-300"}`}
               title={rule.is_active ? "Active" : "Inactive"}
             />
           </div>
           {rule.description && (
-            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+            <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">
               {rule.description}
             </p>
           )}
@@ -101,19 +101,19 @@ export default function RuleCard({ rule, onUpdate }: Props) {
                       if (e.key === "Enter") handleSave();
                       if (e.key === "Escape") handleCancel();
                     }}
-                    className="w-24 bg-[#0a0a14] border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:border-violet-500 focus:outline-none"
+                    className="w-24 bg-gray-50 border border-gray-300 rounded px-2 py-1 text-sm text-gray-800 focus:border-brand-500 focus:outline-none"
                     autoFocus
                   />
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="text-xs text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                    className="text-xs text-brand-600 hover:text-brand-700 disabled:opacity-50"
                   >
                     {saving ? "..." : "Save"}
                   </button>
                   <button
                     onClick={handleCancel}
-                    className="text-xs text-gray-500 hover:text-gray-400"
+                    className="text-xs text-gray-400 hover:text-gray-600"
                   >
                     Cancel
                   </button>
@@ -121,7 +121,7 @@ export default function RuleCard({ rule, onUpdate }: Props) {
               ) : (
                 <button
                   onClick={() => setEditing(true)}
-                  className="text-sm text-violet-400 hover:text-violet-300 transition-colors"
+                  className="text-sm text-accent-600 hover:text-accent-700 transition-colors"
                 >
                   Threshold: {field.isAmount ? "$" : ""}
                   {field.value}

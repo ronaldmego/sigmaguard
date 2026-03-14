@@ -55,38 +55,38 @@ export default function ApprovalCard({
 
   return (
     <div
-      className={`bg-[#12121e] border border-amber-500/20 rounded-xl p-5 ${isNew ? "animate-slide-in" : ""}`}
+      className={`bg-white border border-amber-200 rounded-xl p-5 ${isNew ? "animate-slide-in" : ""}`}
     >
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-medium text-gray-200">
+            <p className="font-medium text-gray-800">
               {tx?.merchant || truncateAddress(tx?.recipient || "")}
             </p>
             <StatusBadge status={approval.flag_source} />
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-gray-400 mt-0.5">
             {formatTimeAgo(approval.created_at)}
             {tx?.category && (
-              <span className="text-gray-600 ml-2">{tx.category}</span>
+              <span className="text-gray-300 ml-2">{tx.category}</span>
             )}
           </p>
         </div>
-        <p className="text-lg font-bold text-copper-400">
-          ${tx?.amount.toFixed(2) ?? "—"}
+        <p className="text-lg font-bold text-copper-600">
+          ${tx?.amount.toFixed(2) ?? "\u2014"}
         </p>
       </div>
 
       {/* Agent explanation */}
       {approval.agent_explanation && (
-        <div className="bg-[#0a0a14] border border-gray-800/30 rounded-lg p-3 mb-3">
+        <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 mb-3">
           <div className="flex items-center gap-1.5 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
-            <span className="text-xs font-medium text-violet-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+            <span className="text-xs font-medium text-brand-700">
               AI Analysis
             </span>
           </div>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-500">
             {approval.agent_explanation}
           </p>
         </div>
@@ -94,22 +94,22 @@ export default function ApprovalCard({
 
       {/* Anomaly details */}
       {approval.anomaly_details && (
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mb-3">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 mb-3">
           <span>
             Z-score:{" "}
-            <span className="text-gray-300">
+            <span className="text-gray-700">
               {approval.anomaly_details.z_score?.toFixed(2) ?? "N/A"}
             </span>
           </span>
           <span>
             Method:{" "}
-            <span className="text-gray-300">
+            <span className="text-gray-700">
               {approval.anomaly_details.method}
             </span>
           </span>
           <span>
             Mean:{" "}
-            <span className="text-gray-300">
+            <span className="text-gray-700">
               $
               {approval.anomaly_details.historical_mean?.toFixed(2) ??
                 "N/A"}
@@ -117,7 +117,7 @@ export default function ApprovalCard({
           </span>
           <span>
             Std:{" "}
-            <span className="text-gray-300">
+            <span className="text-gray-700">
               $
               {approval.anomaly_details.historical_std?.toFixed(2) ??
                 "N/A"}
@@ -127,21 +127,21 @@ export default function ApprovalCard({
       )}
 
       {/* Reason */}
-      <p className="text-xs text-gray-500 mb-4">{approval.reason}</p>
+      <p className="text-xs text-gray-400 mb-4">{approval.reason}</p>
 
       {/* Action buttons */}
       <div className="flex gap-3">
         <button
           onClick={() => handleDecision("approved")}
           disabled={loading !== null}
-          className="flex-1 py-2 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 text-sm font-medium hover:bg-emerald-600/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 py-2 rounded-lg bg-brand-50 border border-brand-200 text-brand-700 text-sm font-medium hover:bg-brand-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading === "approved" ? "Approving..." : "Approve"}
         </button>
         <button
           onClick={() => handleDecision("rejected")}
           disabled={loading !== null}
-          className="flex-1 py-2 rounded-lg bg-red-600/20 border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-600/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 py-2 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading === "rejected" ? "Rejecting..." : "Reject"}
         </button>

@@ -89,14 +89,14 @@ export default function GovernanceChart({ transactions }: Props) {
 
   if (totalPoints === 0) {
     return (
-      <div className="bg-[#0a0a14] border border-gray-800/50 rounded-xl p-6">
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-2 h-2 rounded-full bg-violet-500" />
-          <h3 className="text-sm font-medium text-gray-300">
+          <div className="w-2 h-2 rounded-full bg-brand-600" />
+          <h3 className="text-sm font-medium text-gray-600">
             Anomaly Detection
           </h3>
         </div>
-        <div className="flex items-center justify-center h-48 text-gray-600 text-sm">
+        <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
           Run the simulation to see governance decisions plotted in realtime
         </div>
       </div>
@@ -110,25 +110,25 @@ export default function GovernanceChart({ transactions }: Props) {
   const yMin = -maxAmount * 0.05;
 
   return (
-    <div className="bg-[#0a0a14] border border-gray-800/50 rounded-xl p-6">
+    <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-violet-500" />
-          <h3 className="text-sm font-medium text-gray-300">
+          <div className="w-2 h-2 rounded-full bg-brand-600" />
+          <h3 className="text-sm font-medium text-gray-700">
             Anomaly Detection
           </h3>
         </div>
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center gap-4 text-xs text-gray-400">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-cyan-400" />
+            <span className="w-2 h-2 rounded-full bg-brand-500" />
             Auto-approved
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#ea580c]" />
+            <span className="w-2 h-2 rounded-full bg-[#DC2626]" />
             Flagged
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-2 bg-violet-500/20 border border-violet-500/30 rounded-sm" />
+            <span className="w-3 h-2 bg-brand-500/10 border border-brand-500/20 rounded-sm" />
             Normal zone
           </span>
         </div>
@@ -136,26 +136,26 @@ export default function GovernanceChart({ transactions }: Props) {
 
       {/* Agent Performance Summary */}
       <div className="flex items-center gap-6 mb-4 text-xs">
-        <span className="text-gray-500">
+        <span className="text-gray-400">
           Agent Deployed:{" "}
-          <span className="text-cyan-400 font-mono font-medium">
+          <span className="text-accent-600 font-mono font-medium">
             ${totalDeployed.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </span>
-        <span className="text-gray-500">
+        <span className="text-gray-400">
           Transactions:{" "}
-          <span className="text-gray-300 font-mono">{totalPoints}</span>
+          <span className="text-gray-700 font-mono">{totalPoints}</span>
         </span>
-        <span className="text-gray-500">
+        <span className="text-gray-400">
           Approved:{" "}
-          <span className="text-cyan-400 font-mono">
+          <span className="text-brand-600 font-mono">
             {approvedData.length}
           </span>
         </span>
         {flaggedData.length > 0 && (
-          <span className="text-gray-500">
+          <span className="text-gray-400">
             Flagged:{" "}
-            <span className="text-[#ea580c] font-mono">
+            <span className="text-[#DC2626] font-mono">
               {flaggedData.length}
             </span>
           </span>
@@ -166,7 +166,7 @@ export default function GovernanceChart({ transactions }: Props) {
         <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#1e1e2e"
+            stroke="#e5e7eb"
             vertical={false}
           />
           <XAxis
@@ -174,14 +174,14 @@ export default function GovernanceChart({ transactions }: Props) {
             dataKey="index"
             name="Transaction"
             domain={[0, totalPoints + 1]}
-            tick={{ fill: "#6b7280", fontSize: 11 }}
-            axisLine={{ stroke: "#1e1e2e" }}
+            tick={{ fill: "#9ca3af", fontSize: 11 }}
+            axisLine={{ stroke: "#e5e7eb" }}
             tickLine={false}
             label={{
               value: "Agent Transaction #",
               position: "insideBottom",
               offset: -5,
-              fill: "#4b5563",
+              fill: "#9ca3af",
               fontSize: 11,
             }}
           />
@@ -190,8 +190,8 @@ export default function GovernanceChart({ transactions }: Props) {
             dataKey="amount"
             name="Amount"
             domain={[yMin, yMax]}
-            tick={{ fill: "#6b7280", fontSize: 11 }}
-            axisLine={{ stroke: "#1e1e2e" }}
+            tick={{ fill: "#9ca3af", fontSize: 11 }}
+            axisLine={{ stroke: "#e5e7eb" }}
             tickLine={false}
             tickFormatter={(v: number) => `$${v.toFixed(0)}`}
           />
@@ -201,11 +201,11 @@ export default function GovernanceChart({ transactions }: Props) {
               if (!payload || payload.length === 0) return null;
               const data = payload[0].payload as ChartPoint;
               return (
-                <div className="bg-[#12121e] border border-gray-700 rounded-lg px-3 py-2 text-xs shadow-xl">
-                  <p className="text-gray-300 font-medium">{data.label}</p>
-                  <p className="text-gray-400 mt-1">
+                <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs shadow-lg">
+                  <p className="text-gray-700 font-medium">{data.label}</p>
+                  <p className="text-gray-500 mt-1">
                     Amount:{" "}
-                    <span className="text-white font-mono">
+                    <span className="text-gray-900 font-mono">
                       ${data.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </span>
                   </p>
@@ -213,8 +213,8 @@ export default function GovernanceChart({ transactions }: Props) {
                     <span
                       className={
                         data.outcome === "flag_for_review"
-                          ? "text-[#ea580c]"
-                          : "text-cyan-400"
+                          ? "text-[#DC2626]"
+                          : "text-brand-600"
                       }
                     >
                       {data.outcome === "flag_for_review"
@@ -227,27 +227,27 @@ export default function GovernanceChart({ transactions }: Props) {
             }}
           />
 
-          {/* Normal zone band (mean ± threshold×σ) */}
+          {/* Normal zone band (mean +/- threshold*sigma) */}
           <ReferenceArea
             y1={0}
             y2={upperBand}
-            fill="#7c3aed"
-            fillOpacity={0.08}
-            stroke="#7c3aed"
-            strokeOpacity={0.2}
+            fill="#0D9488"
+            fillOpacity={0.06}
+            stroke="#0D9488"
+            strokeOpacity={0.15}
             strokeDasharray="4 4"
           />
 
           {/* Mean line */}
           <ReferenceLine
             y={mean}
-            stroke="#7c3aed"
+            stroke="#0D9488"
             strokeDasharray="6 4"
-            strokeOpacity={0.6}
+            strokeOpacity={0.5}
             label={{
-              value: `μ = $${mean.toFixed(2)}`,
+              value: `\u03BC = $${mean.toFixed(2)}`,
               position: "right",
-              fill: "#7c3aed",
+              fill: "#0D9488",
               fontSize: 10,
             }}
           />
@@ -255,29 +255,29 @@ export default function GovernanceChart({ transactions }: Props) {
           {/* Upper threshold line */}
           <ReferenceLine
             y={upperBand}
-            stroke="#ea580c"
+            stroke="#DC2626"
             strokeDasharray="6 4"
-            strokeOpacity={0.6}
+            strokeOpacity={0.5}
             label={{
-              value: `2σ = $${upperBand.toFixed(2)}`,
+              value: `2\u03C3 = $${upperBand.toFixed(2)}`,
               position: "right",
-              fill: "#ea580c",
+              fill: "#DC2626",
               fontSize: 10,
             }}
           />
 
-          {/* Approved points (cyan) */}
+          {/* Approved points (teal) */}
           <Scatter
             data={approvedData}
-            fill="#06b6d4"
+            fill="#0D9488"
             fillOpacity={0.85}
             r={5}
           />
 
-          {/* Flagged points (copper) */}
+          {/* Flagged points (red) */}
           <Scatter
             data={flaggedData}
-            fill="#ea580c"
+            fill="#DC2626"
             fillOpacity={0.95}
             r={8}
           />
