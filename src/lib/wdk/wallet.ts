@@ -13,7 +13,7 @@ function getSeedPhrase(): string {
   return seed;
 }
 
-function getWdk(): WDK {
+export function getWdk(): WDK {
   if (wdkInstance) return wdkInstance;
 
   const seed = getSeedPhrase();

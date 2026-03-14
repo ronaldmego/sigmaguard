@@ -203,7 +203,7 @@ export interface AgentStrategy {
   updated_at: string;
 }
 
-export type AgentRunDecision = "hold" | "transfer";
+export type AgentRunDecision = "hold" | "transfer" | "swap";
 
 export interface AgentRun {
   id: string;

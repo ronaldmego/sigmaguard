@@ -1,10 +1,9 @@
 import type { AgentStatus, AgentStatusInfo, FinalOutcome } from "@/types";
 import { fetchMarketData } from "./market";
 import { evaluateStrategy } from "./strategies";
-import { getWalletBalance } from "@/lib/wdk";
+import { getWalletBalance, getWalletAddress, quoteSwap } from "@/lib/wdk";
 import { CHAINS } from "@/lib/wdk/chains";
 import { processTransaction } from "@/lib/governance/pipeline";
-import { getWalletAddress } from "@/lib/wdk";
 import {
   getActiveStrategies,
   getAllStrategies,
@@ -143,8 +142,63 @@ async function runAgentCycle(): Promise<void> {
         let transactionId: string | null = null;
         let governanceOutcome: FinalOutcome | null = null;
 
-        if (result.decision === "transfer" && result.transfer) {
-          // 5. Submit through governance pipeline
+        if (result.decision === "swap" && result.swap) {
+          // 5a. Swap via Velora DEX — get quote, then submit through governance
+          console.log(
+            `[PEPA Agent] Strategy "${strategy.name}": SWAP ${result.swap.amountIn} ${result.swap.tokenInSymbol} → ${result.swap.tokenOutSymbol} on ${result.swap.chain}`
+          );
+
+          try {
+            // Get real DEX quote before governance decision
+            const amountWei = BigInt(Math.round(result.swap.amountIn * 1e18));
+            let quoteInfo = "";
+            try {
+              const quote = await quoteSwap({
+                chain: result.swap.chain,
+                tokenIn: result.swap.tokenIn,
+                tokenOut: result.swap.tokenOut,
+                tokenInAmount: amountWei,
+              });
+              quoteInfo = ` (quote: ${quote.tokenOutAmount} ${result.swap.tokenOutSymbol}, fee: ${quote.fee})`;
+              result.swap.quoteAmountOut = quote.tokenOutAmount;
+              result.swap.quoteFee = quote.fee;
+              console.log(`[PEPA Agent] DEX quote: ${quote.tokenInAmount} → ${quote.tokenOutAmount}${result.swap.tokenOutSymbol}, fee: ${quote.fee}`);
+            } catch (quoteErr) {
+              console.warn(`[PEPA Agent] DEX quote failed (proceeding with governance):`, quoteErr);
+              quoteInfo = " (quote unavailable — testnet liquidity)";
+            }
+
+            // Submit swap through governance pipeline as a transaction
+            const walletAddress = await getWalletAddress(result.swap.chain);
+            const { transaction, result: govResult } = await processTransaction(
+              walletAddress,
+              {
+                recipient: result.swap.tokenOut, // token contract as recipient
+                amount: result.swap.amountIn,
+                currency: result.swap.tokenInSymbol,
+                chain: result.swap.chain,
+                category: "agent_swap",
+                merchant: `pepa_agent_swap_velora`,
+                description: `${result.reason}${quoteInfo}`,
+              }
+            );
+
+            transactionId = transaction.id;
+            governanceOutcome = govResult.final_outcome;
+
+            console.log(
+              `[PEPA Agent] Swap governance outcome: ${governanceOutcome} (tx: ${transactionId})`
+            );
+
+            await updateStrategyLastExecution(strategy.id);
+          } catch (err) {
+            console.error(
+              `[PEPA Agent] Swap pipeline error for strategy "${strategy.name}":`,
+              err
+            );
+          }
+        } else if (result.decision === "transfer" && result.transfer) {
+          // 5b. Submit transfer through governance pipeline
           console.log(
             `[PEPA Agent] Strategy "${strategy.name}": TRANSFER ${result.transfer.amount} ${result.transfer.currency} on ${result.transfer.chain}`
           );
