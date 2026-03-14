@@ -86,10 +86,10 @@ export default function DashboardShell({ children, pendingCount = 0 }: Props) {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar — desktop */}
-      <nav className="hidden md:flex flex-col items-center w-16 bg-[#0f0f18] border-r border-gray-800/50 py-6 gap-1 fixed h-full z-10">
+      <nav className="hidden md:flex flex-col items-center w-16 bg-[#F0F0EA] border-r border-gray-200 py-6 gap-1 fixed h-full z-10">
         {/* Logo */}
         <div className="mb-6">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-cyan-600 flex items-center justify-center text-white text-xs font-bold">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600 flex items-center justify-center text-white text-xs font-bold">
             P
           </div>
         </div>
@@ -101,8 +101,8 @@ export default function DashboardShell({ children, pendingCount = 0 }: Props) {
             title={item.label}
             className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
               active === item.id
-                ? "bg-violet-600/20 text-violet-400"
-                : "text-gray-500 hover:text-gray-300 hover:bg-white/[0.04]"
+                ? "bg-brand-600/10 text-brand-700"
+                : "text-gray-400 hover:text-gray-600 hover:bg-black/[0.04]"
             }`}
           >
             {item.icon}
@@ -119,15 +119,15 @@ export default function DashboardShell({ children, pendingCount = 0 }: Props) {
       <main className="flex-1 md:ml-16 pb-20 md:pb-6">{children}</main>
 
       {/* Bottom tab bar — mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0f0f18] border-t border-gray-800/50 flex justify-around py-2 px-1 z-10">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#F0F0EA] border-t border-gray-200 flex justify-around py-2 px-1 z-10">
         {NAV_ITEMS.map((item) => (
           <button
             key={item.id}
             onClick={() => scrollTo(item.id)}
             className={`relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
               active === item.id
-                ? "text-violet-400"
-                : "text-gray-500"
+                ? "text-brand-700"
+                : "text-gray-400"
             }`}
           >
             {item.icon}

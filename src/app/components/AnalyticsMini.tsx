@@ -8,7 +8,6 @@ interface Props {
 }
 
 export default function AnalyticsMini({ transactions, pendingCount }: Props) {
-  // Governed transactions = those that went through the pipeline (have governance_result)
   const governedTxs = transactions.filter((t) => t.governance_result != null);
 
   const anomalyCount = governedTxs.filter(
@@ -28,22 +27,22 @@ export default function AnalyticsMini({ transactions, pendingCount }: Props) {
     {
       label: "Total Spend",
       value: `$${totalSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      color: "text-cyan-400",
+      color: "text-accent-600",
     },
     {
       label: "Transactions",
       value: String(transactions.length),
-      color: "text-violet-400",
+      color: "text-gray-800",
     },
     {
       label: "Anomaly Rate",
       value: `${anomalyRate}%`,
-      color: anomalyCount > 0 ? "text-[#ea580c]" : "text-cyan-400",
+      color: anomalyCount > 0 ? "text-copper-600" : "text-brand-600",
     },
     {
       label: "Pending Approvals",
       value: String(pendingCount),
-      color: pendingCount > 0 ? "text-[#ea580c]" : "text-emerald-400",
+      color: pendingCount > 0 ? "text-copper-600" : "text-brand-600",
     },
   ];
 
@@ -52,9 +51,9 @@ export default function AnalyticsMini({ transactions, pendingCount }: Props) {
       {stats.map((s) => (
         <div
           key={s.label}
-          className="bg-[#12121e] border border-gray-800/50 rounded-xl p-4 flex flex-col justify-center"
+          className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-center"
         >
-          <p className="text-xs text-gray-500 mb-1">{s.label}</p>
+          <p className="text-xs text-gray-400 mb-1">{s.label}</p>
           <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
         </div>
       ))}

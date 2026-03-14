@@ -10,15 +10,13 @@ import {
 } from "../fixtures/governance.fixtures";
 import type { AgentRecommendation, RulesResult, AnomalyResult } from "@/types";
 
-// Mock OpenAI
-vi.mock("openai", () => {
+// Mock Anthropic SDK
+vi.mock("@anthropic-ai/sdk", () => {
   const createMock = vi.fn();
   return {
-    default: class MockOpenAI {
-      chat = {
-        completions: {
-          create: createMock,
-        },
+    default: class MockAnthropic {
+      messages = {
+        create: createMock,
       };
     },
     __createMock: createMock,
@@ -26,16 +24,16 @@ vi.mock("openai", () => {
 });
 
 // Get a handle on the mock — we need to access it through the module
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 
 function getCreateMock() {
-  const client = new OpenAI({ apiKey: "test" });
-  return vi.mocked(client.chat.completions.create);
+  const client = new Anthropic({ apiKey: "test" });
+  return vi.mocked(client.messages.create);
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubEnv("OPENAI_API_KEY", "test-key-123");
+  vi.stubEnv("ANTHROPIC_API_KEY", "test-key-123");
 });
 
 // ============================================================
@@ -95,15 +93,15 @@ describe("validateRecommendation", () => {
 });
 
 // ============================================================
-// interpretTransaction (mocked OpenAI)
+// interpretTransaction (mocked Anthropic)
 // ============================================================
 
 describe("interpretTransaction", () => {
-  function mockCompletion(content: string, usage?: { prompt_tokens: number; completion_tokens: number }) {
+  function mockCompletion(content: string, usage?: { input_tokens: number; output_tokens: number }) {
     const createMock = getCreateMock();
     createMock.mockResolvedValue({
-      choices: [{ message: { content }, index: 0, finish_reason: "stop" }],
-      usage: usage ?? { prompt_tokens: 100, completion_tokens: 50 },
+      content: [{ type: "text", text: content }],
+      usage: usage ?? { input_tokens: 100, output_tokens: 50 },
     } as any);
   }
 
@@ -125,7 +123,7 @@ describe("interpretTransaction", () => {
     expect(result.explanation).toBe("Normal transaction within limits.");
     expect(result.recommendation).toBe("auto_approve");
     expect(result.confidence).toBe(0.9);
-    expect(result.model_used).toBe("gpt-5.2");
+    expect(result.model_used).toBe("claude-sonnet-4-6");
   });
 
   it("falls back to flag_for_review on invalid JSON", async () => {
@@ -201,7 +199,7 @@ describe("interpretTransaction", () => {
         recommendation: "auto_approve",
         confidence: 0.9,
       }),
-      { prompt_tokens: 200, completion_tokens: 80 }
+      { input_tokens: 200, output_tokens: 80 }
     );
 
     const result = await interpretTransaction(
@@ -213,8 +211,8 @@ describe("interpretTransaction", () => {
     expect(result.tokens_used).toBe(280);
   });
 
-  it("throws when OPENAI_API_KEY is not set", async () => {
-    vi.stubEnv("OPENAI_API_KEY", "");
+  it("throws when ANTHROPIC_API_KEY is not set", async () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
 
     await expect(
       interpretTransaction(
@@ -222,7 +220,7 @@ describe("interpretTransaction", () => {
         makeRulesResult({ passed: true }),
         makeAnomalyResult({ is_anomaly: false })
       )
-    ).rejects.toThrow("OPENAI_API_KEY");
+    ).rejects.toThrow("ANTHROPIC_API_KEY");
   });
 
   it("applies safety override: anomaly + LLM auto_approve → flag_for_review", async () => {

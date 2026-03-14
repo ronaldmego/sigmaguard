@@ -26,7 +26,7 @@ PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfo
 |-------|------|-----|
 | **1. Fixed Rules** | Hard limits (max amount, daily caps, asset whitelist) | JSON policies in database |
 | **2. Anomaly Detection** | Flags statistical outliers — math, not guessing | Z-score + IQR over transaction history |
-| **3. AI Interpreter** | Explains decisions in plain language | GPT-5.2 (interprets, never decides) |
+| **3. AI Interpreter** | Explains decisions in plain language | Claude (interprets, never decides) |
 | **4. Human-in-the-Loop** | Final say on anything flagged | Realtime approval dashboard |
 
 **The key insight:** The LLM does NOT decide if a transaction is risky. The statistical model decides. The LLM translates:
@@ -38,7 +38,7 @@ PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfo
 - **Node.js >= 18** (recommended: 20 LTS)
 - **npm >= 9**
 - A Supabase instance (cloud or self-hosted)
-- OpenAI API key (for the LLM interpreter layer)
+- Anthropic API key (for the Claude LLM interpreter layer)
 
 ## Quick Start (< 5 minutes)
 
@@ -46,7 +46,7 @@ PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfo
 git clone https://github.com/ronaldmego/pepa-wallet-intelligence.git
 cd pepa-wallet-intelligence
 npm install
-cp .env.example .env   # Fill in Supabase + OpenAI + WDK keys
+cp .env.example .env   # Fill in Supabase + Anthropic + WDK keys
 npm run db:setup        # Create schema + tables
 npm run seed            # 84 transactions + 5 rules + 2 strategies
 npm run dev             # Dashboard at http://localhost:4007
@@ -181,8 +181,8 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 WDK_SEED_PHRASE=            # Testnet only — never commit real seeds
 WDK_NETWORK=testnet
 
-# OpenAI (LLM interpreter layer)
-OPENAI_API_KEY=sk-...
+# Anthropic (Claude LLM interpreter layer)
+ANTHROPIC_API_KEY=sk-ant-...
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:4007
