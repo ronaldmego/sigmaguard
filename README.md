@@ -1,7 +1,7 @@
 # PEPA Wallet Intelligence
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-111_passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-135_passing-brightgreen.svg)](#testing)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
 
 **Autonomous DeFi agent with 4-layer governance — because AI agents that handle money need more than "hope for the best."**
@@ -20,7 +20,7 @@ Most "agent + wallet" solutions give the agent a wallet and cross their fingers.
 
 ## Our Solution
 
-PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfolio rebalancing) through a **4-layer governance pipeline** before any funds move:
+PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfolio rebalancing via DEX swaps, yield farming on Aave) through a **4-layer governance pipeline** before any funds move:
 
 | Layer | Role | How |
 |-------|------|-----|
@@ -31,7 +31,7 @@ PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfo
 
 **The key insight:** The LLM does NOT decide if a transaction is risky. The statistical model decides. The LLM translates:
 
-> *"This $450 rebalance is 3.2 standard deviations above your average of $4.85 for agent operations. The market crashed 18%, triggering an emergency portfolio rebalance. Do you want to approve?"*
+> *"This $35 rebalance swap is 3.2 standard deviations above your average of $3.80 for agent operations. The market crashed 18%, triggering an emergency portfolio rebalance via Velora DEX. Do you want to approve?"*
 
 ## Prerequisites
 
@@ -62,7 +62,7 @@ npm run simulate
 Open the dashboard and watch:
 - DCA transfers appearing in the transaction feed in realtime
 - Agent activity showing hold/transfer decisions with market context
-- A **market crash at tick 8** triggers a $450 emergency rebalance
+- A **market crash at tick 8** triggers a $35 emergency rebalance swap
 - Governance flags it (z-score: 3.2) and sends it to the approval queue
 - You approve or reject it from the dashboard
 
@@ -80,7 +80,8 @@ Open the dashboard and watch:
 │                                                  │
 │  Strategies:                                     │
 │  • DCA — periodic buys at fixed intervals        │
-│  • Rebalance — drift-based allocation correction │
+│  • Rebalance — DEX swap via Velora when drifted  │
+│  • Yield — park idle USDT in Aave V3 lending     │
 └────────────────────┬────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────┐
@@ -93,8 +94,8 @@ Open the dashboard and watch:
 └────────────────────┬────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────┐
-│              Tether WDK                          │
-│  Self-custodial │ Multi-chain │ On-chain settle  │
+│              Tether WDK (4 modules)              │
+│  Wallet │ Swap (Velora) │ Lending (Aave V3)      │
 │  Ethereum Sepolia + Polygon Amoy (testnet)       │
 └─────────────────────────────────────────────────┘
 ```
@@ -106,7 +107,8 @@ Every 120 seconds, the agent:
   1. Fetches live market data (ETH, MATIC prices via CoinGecko)
   2. Evaluates active strategies:
      • DCA: Is it time to buy? → Transfer fixed amount to vault
-     • Rebalance: Has portfolio drifted >15%? → Correct allocation
+     • Rebalance: Has portfolio drifted >15%? → Swap via Velora DEX
+     • Yield: Is USDT sitting idle? → Supply to Aave V3 lending pool
   3. If action needed → enters 4-layer governance pipeline
      • Normal trade → auto-approved, executed via WDK, logged
      • Anomalous trade → flagged, queued for human approval
@@ -121,9 +123,11 @@ The agent is **truly autonomous** — it starts, evaluates, decides, and execute
 |-----------|-----------|-----|
 | Frontend | Next.js 14 (App Router) | SSR + API routes in one runtime |
 | Database | Supabase (PostgreSQL) | Realtime subscriptions + audit trail |
-| Wallet | Tether WDK (MCP Toolkit) | Self-custodial, 13 chains, 35 tools |
+| Wallet | Tether WDK (4 modules) | Self-custodial wallets, DEX swap, Aave lending |
+| DEX | Velora (via WDK) | Token swaps for portfolio rebalancing |
+| Lending | Aave V3 (via WDK) | Yield farming for idle stablecoins |
 | Anomaly Detection | Z-score + IQR | Proven statistics, not LLM guessing |
-| AI Agent | GPT-5.2 | Interprets and explains, never decides |
+| AI Agent | Claude (Anthropic) | Interprets and explains, never decides |
 | Chains | Ethereum Sepolia + Polygon Amoy | Testnet by default, always |
 
 ## What Makes This Different
@@ -149,22 +153,22 @@ src/
 ├── lib/
 │   ├── governance/         # 4-layer pipeline (rules, anomaly, agent, pipeline)
 │   ├── agent/              # Autonomous loop (strategies, market data)
-│   ├── wdk/                # Tether WDK integration
+│   ├── wdk/                # Tether WDK (wallet, swap, lending)
 │   └── db/                 # Supabase client + queries
 ├── types/                  # TypeScript definitions
 scripts/
 ├── seed.ts                 # Demo data (84 txs + 5 rules + 2 strategies)
 ├── simulate.ts             # 24h agent simulation in 5 minutes
-tests/                      # 111 tests (governance, agent, math)
+tests/                      # 135 tests (governance, agent, swap, lending, math)
 migrations/                 # SQL schema (6 tables + RLS)
 ```
 
 ## Testing
 
 ```bash
-npm test                    # All 111 tests
+npm test                    # All 135 tests
 npm run test:governance     # Governance pipeline (64 tests)
-npm run test:agent          # Autonomous agent (25 tests)
+npm run test:agent          # Autonomous agent + swap + lending (49 tests)
 npm run test:math           # Statistical functions (22 tests)
 ```
 
