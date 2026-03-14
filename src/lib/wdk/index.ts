@@ -1,4 +1,5 @@
 export {
+  getWdk,
   getWalletAddress,
   getWalletBalance,
   sendTransaction,
@@ -16,3 +17,12 @@ export {
   getChain,
   type ChainConfig,
 } from "./chains";
+
+export {
+  quoteSwap,
+  executeSwap,
+  SWAP_TOKENS,
+  type SwapQuote,
+  type SwapExecutionResult,
+  type SwapInput,
+} from "./swap";

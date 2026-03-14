@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- WDK Swap: Velora DEX integration for rebalance strategy — `quoteSwap` + `executeSwap` via `@tetherto/wdk-protocol-swap-velora-evm` ([#17](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/17))
+- Rebalance strategy now proposes DEX swaps (ETH/MATIC → USDT) instead of vault transfers, with real quote data
+- Swap decisions go through full 4-layer governance pipeline (rules → anomaly → LLM → human)
+- 10 new tests (121 total): swap wrapper, strategy swap decisions, token address validation
+
 ### Changed
 - Migrate LLM from OpenAI GPT-5.2 to Anthropic Claude SDK ([#13](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/13))
 - Switch dashboard from dark to light theme — teal/gold/copper palette ([#12](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/12))
