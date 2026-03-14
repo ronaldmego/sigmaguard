@@ -14,7 +14,7 @@ interface Props {
 export default function GovernanceRules({ rules, onRuleUpdate }: Props) {
   return (
     <div id="rules">
-      <h2 className="text-sm font-medium text-gray-400 mb-3">
+      <h2 className="text-sm font-medium text-gray-500 mb-3">
         Governance Rules
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -23,8 +23,8 @@ export default function GovernanceRules({ rules, onRuleUpdate }: Props) {
         ))}
       </div>
       {rules.length === 0 && (
-        <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-8 text-center">
-          <p className="text-gray-600 text-sm">No governance rules configured</p>
+        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+          <p className="text-gray-400 text-sm">No governance rules configured</p>
         </div>
       )}
     </div>

@@ -14,8 +14,8 @@ interface MarketPrices {
 }
 
 const CHAIN_COLORS: Record<string, string> = {
-  "ethereum-sepolia": "bg-violet-500",
-  "polygon-amoy": "bg-cyan-500",
+  "ethereum-sepolia": "bg-brand-500",
+  "polygon-amoy": "bg-accent-500",
 };
 
 const CHAIN_LABELS: Record<string, string> = {
@@ -31,10 +31,8 @@ export default function PortfolioAllocation({
   const [prices, setPrices] = useState<MarketPrices>({});
   const [targetAllocation, setTargetAllocation] = useState<Record<string, number> | null>(null);
 
-  // Fetch prices from agent status (which includes market data implicitly via strategies)
   const fetchPrices = useCallback(async () => {
     try {
-      // Use CoinGecko directly for display — same endpoint as market.ts
       const res = await fetch(
         "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,matic-network&vs_currencies=usd&include_24hr_change=true",
         { signal: AbortSignal.timeout(10000) }
@@ -61,7 +59,6 @@ export default function PortfolioAllocation({
     }
   }, []);
 
-  // Fetch target allocation from rebalance strategy
   useEffect(() => {
     async function fetchTarget() {
       try {
@@ -88,7 +85,6 @@ export default function PortfolioAllocation({
     return () => clearInterval(interval);
   }, [fetchPrices]);
 
-  // Calculate USD values
   const allocations = wallets
     .map((w) => {
       const price = prices[w.chain];
@@ -101,18 +97,16 @@ export default function PortfolioAllocation({
   const totalUsd = allocations.reduce((s, a) => s + a.usdValue, 0);
 
   return (
-    <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-5 h-full">
-      <h2 className="text-sm font-medium text-gray-400 mb-4">
+    <div className="bg-white border border-gray-200 rounded-xl p-5 h-full">
+      <h2 className="text-sm font-medium text-gray-500 mb-4">
         Portfolio Allocation
       </h2>
 
-      {/* Total value */}
-      <p className="text-2xl font-bold text-gray-200 mb-4">
+      <p className="text-2xl font-bold text-gray-800 mb-4">
         ${totalUsd.toFixed(2)}
-        <span className="text-xs font-normal text-gray-500 ml-1">USD</span>
+        <span className="text-xs font-normal text-gray-400 ml-1">USD</span>
       </p>
 
-      {/* Allocation bars */}
       <div className="space-y-3">
         {allocations.map((alloc) => {
           const pct = totalUsd > 0 ? (alloc.usdValue / totalUsd) * 100 : 0;
@@ -120,37 +114,35 @@ export default function PortfolioAllocation({
             ? (targetAllocation[alloc.chain] ?? 0) * 100
             : null;
           const color =
-            CHAIN_COLORS[alloc.chain] ?? "bg-gray-500";
+            CHAIN_COLORS[alloc.chain] ?? "bg-gray-400";
           const label = CHAIN_LABELS[alloc.chain] ?? alloc.symbol;
 
           return (
             <div key={alloc.chain}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400">{label}</span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500">{label}</span>
+                <span className="text-xs text-gray-400">
                   {pct.toFixed(1)}%
                   {targetPct !== null && (
-                    <span className="text-gray-600 ml-1">
+                    <span className="text-gray-300 ml-1">
                       (target: {targetPct}%)
                     </span>
                   )}
                 </span>
               </div>
-              <div className="relative h-3 bg-gray-800 rounded-full overflow-hidden">
-                {/* Actual allocation */}
+              <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`absolute inset-y-0 left-0 rounded-full ${color} transition-all duration-500`}
                   style={{ width: `${Math.min(pct, 100)}%` }}
                 />
-                {/* Target marker */}
                 {targetPct !== null && targetPct > 0 && (
                   <div
-                    className="absolute inset-y-0 w-0.5 bg-white/30"
+                    className="absolute inset-y-0 w-0.5 bg-gray-400"
                     style={{ left: `${Math.min(targetPct, 100)}%` }}
                   />
                 )}
               </div>
-              <p className="text-[10px] text-gray-600 mt-0.5">
+              <p className="text-[10px] text-gray-400 mt-0.5">
                 {alloc.balance.toFixed(4)} {alloc.symbol} = $
                 {alloc.usdValue.toFixed(2)}
               </p>
@@ -159,7 +151,7 @@ export default function PortfolioAllocation({
         })}
 
         {allocations.length === 0 && (
-          <p className="text-xs text-gray-600">No balances to display</p>
+          <p className="text-xs text-gray-400">No balances to display</p>
         )}
       </div>
     </div>

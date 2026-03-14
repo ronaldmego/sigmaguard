@@ -32,37 +32,37 @@ export default function TransactionRow({ tx, isNew }: Props) {
 
   return (
     <div
-      className={`border-b border-gray-800/30 last:border-b-0 ${isNew ? "animate-slide-in" : ""}`}
+      className={`border-b border-gray-100 last:border-b-0 ${isNew ? "animate-slide-in" : ""}`}
     >
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-4 py-3 px-4 hover:bg-white/[0.02] transition-colors text-left"
+        className="w-full flex items-center gap-4 py-3 px-4 hover:bg-gray-50 transition-colors text-left"
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-200 truncate">
+            <span className="text-sm font-medium text-gray-800 truncate">
               {tx.merchant || truncateAddress(tx.recipient)}
             </span>
             {tx.category && (
-              <span className="text-xs text-gray-600">{tx.category}</span>
+              <span className="text-xs text-gray-400">{tx.category}</span>
             )}
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-gray-400 mt-0.5">
             {formatTimeAgo(tx.created_at)}
             {tx.chain && (
-              <span className="text-gray-600 ml-2">{tx.chain}</span>
+              <span className="text-gray-300 ml-2">{tx.chain}</span>
             )}
           </p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-sm font-semibold">${tx.amount.toFixed(2)}</p>
-          <p className="text-xs text-gray-600">{tx.currency}</p>
+          <p className="text-sm font-semibold text-gray-800">${tx.amount.toFixed(2)}</p>
+          <p className="text-xs text-gray-400">{tx.currency}</p>
         </div>
         <div className="shrink-0">
           <StatusBadge status={tx.status} />
         </div>
         <svg
-          className={`w-4 h-4 text-gray-500 transition-transform shrink-0 ${expanded ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-gray-400 transition-transform shrink-0 ${expanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -77,7 +77,7 @@ export default function TransactionRow({ tx, isNew }: Props) {
       </button>
 
       {expanded && tx.governance_result && (
-        <div className="px-4 pb-4 pt-2 bg-[#0d0d16] border-t border-gray-800/20">
+        <div className="px-4 pb-4 pt-2 bg-gray-50 border-t border-gray-100">
           <AgentDecisionCard result={tx.governance_result} />
         </div>
       )}

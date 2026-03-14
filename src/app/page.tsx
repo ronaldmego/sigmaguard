@@ -94,8 +94,8 @@ export default function Home() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-gray-500 text-sm">Loading dashboard...</p>
+          <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-gray-400 text-sm">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -105,13 +105,13 @@ export default function Home() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-3">
-          <p className="text-red-400 text-sm">{error}</p>
+          <p className="text-red-500 text-sm">{error}</p>
           <button
             onClick={() => {
               setLoading(true);
               fetchData();
             }}
-            className="text-sm text-violet-400 hover:text-violet-300"
+            className="text-sm text-brand-600 hover:text-brand-700"
           >
             Retry
           </button>
@@ -128,16 +128,16 @@ export default function Home() {
         {/* Header */}
         <div id="overview" className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
               AI-Governed DeFi Agent
             </h1>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               Autonomous wallet — 4-layer transaction governance
             </p>
           </div>
           <div className="flex items-center gap-1.5 mr-24">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live-pulse" />
-            <span className="text-xs text-gray-500">Testnet</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-live-pulse" />
+            <span className="text-xs text-gray-400">Testnet</span>
           </div>
         </div>
 

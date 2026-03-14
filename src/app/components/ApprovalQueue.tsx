@@ -42,7 +42,6 @@ export default function ApprovalQueue({
               }),
             3000
           );
-          // Refetch to get joined transaction data
           const res = await fetch("/api/approvals");
           if (res.ok) {
             const data = await res.json();
@@ -82,10 +81,10 @@ export default function ApprovalQueue({
   return (
     <div id="approvals">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-medium text-gray-400">
+        <h2 className="text-sm font-medium text-gray-500">
           Pending Approvals
         </h2>
-        <span className="bg-copper-600/15 text-copper-400 border border-copper-600/30 rounded-full px-2.5 py-0.5 text-xs font-medium">
+        <span className="bg-copper-50 text-copper-600 border border-copper-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
           {approvals.length}
         </span>
       </div>
