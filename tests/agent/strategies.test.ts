@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   evaluateDca,
   evaluateRebalance,
+  evaluateYield,
   evaluateStrategy,
 } from "@/lib/agent/strategies";
-import type { AgentStrategy, MarketData, DcaConfig, RebalanceConfig } from "@/types";
+import type { AgentStrategy, MarketData, DcaConfig, RebalanceConfig, YieldConfig } from "@/types";
 import type { WalletBalance } from "@/lib/wdk";
 import { SWAP_TOKENS } from "@/lib/wdk";
 
@@ -234,6 +235,75 @@ describe("evaluateRebalance", () => {
 });
 
 // ============================================================
+// Yield Tests
+// ============================================================
+
+function makeYieldStrategy(overrides?: Partial<YieldConfig>): AgentStrategy {
+  return {
+    id: "strat-yield-1",
+    strategy_type: "yield",
+    name: "Test Yield",
+    description: null,
+    config: {
+      asset: "USDT",
+      chain: "ethereum-sepolia",
+      token_address: "0x7169D38820dfd117C3FA1f22a697dBA58d90BA06",
+      min_idle_amount: 10,
+      protocol: "aave-v3",
+      ...overrides,
+    },
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+describe("evaluateYield", () => {
+  it("supplies when idle balance exceeds minimum", () => {
+    const balances = makeBalances("50", "0");
+    const strategy = makeYieldStrategy({ min_idle_amount: 10 });
+    const result = evaluateYield(strategy, balances);
+    expect(result.decision).toBe("supply");
+    expect(result.supply).toBeDefined();
+    expect(result.supply!.amount).toBe(40); // 50 - 10 min
+    expect(result.supply!.protocol).toBe("aave-v3");
+    expect(result.supply!.tokenSymbol).toBe("USDT");
+  });
+
+  it("holds when balance is below minimum", () => {
+    const balances = makeBalances("5", "0");
+    const strategy = makeYieldStrategy({ min_idle_amount: 10 });
+    const result = evaluateYield(strategy, balances);
+    expect(result.decision).toBe("hold");
+    expect(result.reason).toContain("below minimum");
+  });
+
+  it("holds when balance equals minimum exactly", () => {
+    const balances = makeBalances("10", "0");
+    const strategy = makeYieldStrategy({ min_idle_amount: 10 });
+    const result = evaluateYield(strategy, balances);
+    expect(result.decision).toBe("hold");
+  });
+
+  it("holds when no wallet balance for chain", () => {
+    const strategy = makeYieldStrategy({ chain: "unknown-chain" });
+    const result = evaluateYield(strategy, []);
+    expect(result.decision).toBe("hold");
+    expect(result.reason).toContain("No wallet balance");
+  });
+
+  it("includes correct token address and chain", () => {
+    const balances = makeBalances("100", "0");
+    const tokenAddr = "0xCustomToken";
+    const strategy = makeYieldStrategy({ token_address: tokenAddr });
+    const result = evaluateYield(strategy, balances);
+    expect(result.decision).toBe("supply");
+    expect(result.supply!.token).toBe(tokenAddr);
+    expect(result.supply!.chain).toBe("ethereum-sepolia");
+  });
+});
+
+// ============================================================
 // evaluateStrategy dispatcher
 // ============================================================
 
@@ -249,6 +319,13 @@ describe("evaluateStrategy", () => {
     const strategy = makeRebalanceStrategy();
     const result = evaluateStrategy(strategy, MARKET_DATA, balances);
     expect(result.decision).toBe("hold");
+  });
+
+  it("dispatches yield strategies", () => {
+    const balances = makeBalances("50", "0");
+    const strategy = makeYieldStrategy();
+    const result = evaluateStrategy(strategy, MARKET_DATA, balances);
+    expect(result.decision).toBe("supply");
   });
 
   it("returns hold for unknown strategy type", () => {

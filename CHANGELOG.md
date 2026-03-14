@@ -8,10 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- WDK Lending: Aave V3 integration for idle funds yield strategy — `quoteSupply` + `supply` + `getAccountData` via `@tetherto/wdk-protocol-lending-aave-evm` ([#18](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/18))
+- New "yield" strategy type: agent parks idle stablecoins in Aave V3 when balance exceeds threshold
+- Supply decisions go through full 4-layer governance pipeline
 - WDK Swap: Velora DEX integration for rebalance strategy — `quoteSwap` + `executeSwap` via `@tetherto/wdk-protocol-swap-velora-evm` ([#17](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/17))
 - Rebalance strategy now proposes DEX swaps (ETH/MATIC → USDT) instead of vault transfers, with real quote data
 - Swap decisions go through full 4-layer governance pipeline (rules → anomaly → LLM → human)
-- 10 new tests (121 total): swap wrapper, strategy swap decisions, token address validation
+- 24 new tests (135 total): swap wrapper, lending wrapper, yield strategy, token validation
 
 ### Changed
 - Migrate LLM from OpenAI GPT-5.2 to Anthropic Claude SDK ([#13](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/13))
