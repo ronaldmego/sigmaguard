@@ -6,6 +6,7 @@ import {
 } from "@/lib/agent/strategies";
 import type { AgentStrategy, MarketData, DcaConfig, RebalanceConfig } from "@/types";
 import type { WalletBalance } from "@/lib/wdk";
+import { SWAP_TOKENS } from "@/lib/wdk";
 
 // ============================================================
 // Fixtures
@@ -140,14 +141,20 @@ describe("evaluateRebalance", () => {
     expect(result.reason).toContain("within tolerance");
   });
 
-  it("transfers when drift exceeds threshold (overweight)", () => {
+  it("proposes swap when drift exceeds threshold (overweight)", () => {
     // ETH: 1 * 2000 = $2000 (95.2%), MATIC: 200 * 0.5 = $100 (4.8%)
     // Target: 60/40, ETH drift: +35.2% — over 15%
     const balances = makeBalances("1", "200");
     const strategy = makeRebalanceStrategy();
     const result = evaluateRebalance(strategy, MARKET_DATA, balances);
-    expect(result.decision).toBe("transfer");
+    expect(result.decision).toBe("swap");
     expect(result.reason).toContain("overweight");
+    expect(result.reason).toContain("Velora DEX");
+    expect(result.swap).toBeDefined();
+    expect(result.swap!.tokenInSymbol).toBe("ETH");
+    expect(result.swap!.tokenOutSymbol).toBe("USDT");
+    expect(result.swap!.tokenIn).toBe(SWAP_TOKENS["ethereum-sepolia"]["WETH"]);
+    expect(result.swap!.tokenOut).toBe(SWAP_TOKENS["ethereum-sepolia"]["USDT"]);
   });
 
   it("holds when zero portfolio", () => {
@@ -158,15 +165,16 @@ describe("evaluateRebalance", () => {
     expect(result.reason).toContain("$0");
   });
 
-  it("holds when no chain is overweight beyond threshold", () => {
+  it("proposes swap when MATIC is overweight beyond threshold", () => {
     // ETH: 0.01 * 2000 = $20 (2.7%), MATIC: 1400 * 0.5 = $700 (97.2%)
-    // ETH is underweight, MATIC is overweight by 57.2% → should transfer MATIC
+    // ETH is underweight, MATIC is overweight by 57.2% → should swap MATIC
     const balances = makeBalances("0.01", "1400");
     const strategy = makeRebalanceStrategy();
     const result = evaluateRebalance(strategy, MARKET_DATA, balances);
-    // MATIC overweight by ~57% which exceeds 15% threshold → transfer
-    expect(result.decision).toBe("transfer");
-    expect(result.transfer?.chain).toBe("polygon-amoy");
+    // MATIC overweight by ~57% which exceeds 15% threshold → swap
+    expect(result.decision).toBe("swap");
+    expect(result.swap?.chain).toBe("polygon-amoy");
+    expect(result.swap?.tokenInSymbol).toBe("MATIC");
   });
 
   it("holds when drift is below threshold", () => {
@@ -180,27 +188,48 @@ describe("evaluateRebalance", () => {
     expect(result.reason).toContain("within tolerance");
   });
 
-  it("transfers half the excess when overweight", () => {
+  it("swaps half the excess when overweight", () => {
     // ETH: 1 * 2000 = $2000 (95.2%), MATIC: 200 * 0.5 = $100 (4.8%)
     // Drift: 35.2%, excess USD = 35.2% of $2100 = $739.2
     // Half excess in ETH = $369.6 / $2000 = 0.1848 ETH
     const balances = makeBalances("1", "200");
     const strategy = makeRebalanceStrategy();
     const result = evaluateRebalance(strategy, MARKET_DATA, balances);
-    expect(result.decision).toBe("transfer");
-    expect(result.transfer).toBeDefined();
-    expect(result.transfer!.amount).toBeGreaterThan(0);
-    expect(result.transfer!.amount).toBeLessThan(1); // less than total balance
+    expect(result.decision).toBe("swap");
+    expect(result.swap).toBeDefined();
+    expect(result.swap!.amountIn).toBeGreaterThan(0);
+    expect(result.swap!.amountIn).toBeLessThan(1); // less than total balance
   });
 
-  it("does not transfer more than 90% of balance", () => {
+  it("does not swap more than 90% of balance", () => {
     // Extreme case: almost all value in ETH
     const balances = makeBalances("10", "1");
     const strategy = makeRebalanceStrategy();
     const result = evaluateRebalance(strategy, MARKET_DATA, balances);
-    if (result.decision === "transfer" && result.transfer) {
-      expect(result.transfer.amount).toBeLessThanOrEqual(10 * 0.9);
+    if (result.decision === "swap" && result.swap) {
+      expect(result.swap.amountIn).toBeLessThanOrEqual(10 * 0.9);
     }
+  });
+
+  it("includes correct token addresses in swap decision", () => {
+    const balances = makeBalances("1", "200");
+    const strategy = makeRebalanceStrategy();
+    const result = evaluateRebalance(strategy, MARKET_DATA, balances);
+    expect(result.decision).toBe("swap");
+    expect(result.swap!.tokenIn).toBe(SWAP_TOKENS["ethereum-sepolia"]["WETH"]);
+    expect(result.swap!.tokenOut).toBe(SWAP_TOKENS["ethereum-sepolia"]["USDT"]);
+    expect(result.swap!.chain).toBe("ethereum-sepolia");
+  });
+
+  it("uses MATIC swap tokens when polygon is overweight", () => {
+    // MATIC: 10000 * 0.5 = $5000 (96.2%), ETH: 0.01 * 2000 = $20 (3.8%)
+    const balances = makeBalances("0.01", "10000");
+    const strategy = makeRebalanceStrategy();
+    const result = evaluateRebalance(strategy, MARKET_DATA, balances);
+    expect(result.decision).toBe("swap");
+    expect(result.swap!.tokenInSymbol).toBe("MATIC");
+    expect(result.swap!.tokenIn).toBe(SWAP_TOKENS["polygon-amoy"]["WMATIC"]);
+    expect(result.swap!.chain).toBe("polygon-amoy");
   });
 });
 

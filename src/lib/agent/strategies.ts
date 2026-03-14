@@ -6,6 +6,18 @@ import type {
   AgentRunDecision,
 } from "@/types";
 import type { WalletBalance } from "@/lib/wdk";
+import { SWAP_TOKENS } from "@/lib/wdk";
+
+export interface SwapDetails {
+  chain: string;
+  tokenIn: string;
+  tokenOut: string;
+  tokenInSymbol: string;
+  tokenOutSymbol: string;
+  amountIn: number;
+  quoteAmountOut?: string;
+  quoteFee?: string;
+}
 
 export interface StrategyDecision {
   decision: AgentRunDecision;
@@ -16,6 +28,7 @@ export interface StrategyDecision {
     vault_address: string;
     currency: string;
   };
+  swap?: SwapDetails;
 }
 
 // ============================================================
@@ -185,7 +198,26 @@ export function evaluateRebalance(
   }
 
   const symbol = maxDriftChain.includes("polygon") ? "MATIC" : "ETH";
+  const wrappedSymbol = maxDriftChain.includes("polygon") ? "WMATIC" : "WETH";
 
+  // Check if swap tokens are available for this chain — use DEX swap instead of vault transfer
+  const chainTokens = SWAP_TOKENS[maxDriftChain];
+  if (chainTokens && chainTokens[wrappedSymbol] && chainTokens["USDT"]) {
+    return {
+      decision: "swap",
+      reason: `Rebalance via DEX: ${maxDriftChain} overweight by ${maxDrift.toFixed(1)}% (threshold: ${config.drift_threshold_pct}%). Swapping ${transferAmount.toFixed(6)} ${symbol} → USDT via Velora DEX.`,
+      swap: {
+        chain: maxDriftChain,
+        tokenIn: chainTokens[wrappedSymbol],
+        tokenOut: chainTokens["USDT"],
+        tokenInSymbol: symbol,
+        tokenOutSymbol: "USDT",
+        amountIn: transferAmount,
+      },
+    };
+  }
+
+  // Fallback: vault transfer if no swap tokens configured
   return {
     decision: "transfer",
     reason: `Rebalance: ${maxDriftChain} overweight by ${maxDrift.toFixed(1)}% (threshold: ${config.drift_threshold_pct}%). Transferring ${transferAmount.toFixed(6)} ${symbol} to vault.`,
