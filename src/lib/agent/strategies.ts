@@ -2,6 +2,7 @@ import type {
   AgentStrategy,
   DcaConfig,
   RebalanceConfig,
+  YieldConfig,
   MarketData,
   AgentRunDecision,
 } from "@/types";
@@ -19,6 +20,15 @@ export interface SwapDetails {
   quoteFee?: string;
 }
 
+export interface SupplyDetails {
+  chain: string;
+  token: string;
+  tokenSymbol: string;
+  amount: number;
+  protocol: "aave-v3";
+  quoteFee?: string;
+}
+
 export interface StrategyDecision {
   decision: AgentRunDecision;
   reason: string;
@@ -29,6 +39,7 @@ export interface StrategyDecision {
     currency: string;
   };
   swap?: SwapDetails;
+  supply?: SupplyDetails;
 }
 
 // ============================================================
@@ -45,6 +56,8 @@ export function evaluateStrategy(
       return evaluateDca(strategy, marketData);
     case "rebalance":
       return evaluateRebalance(strategy, marketData, walletBalances);
+    case "yield":
+      return evaluateYield(strategy, walletBalances);
     default:
       return { decision: "hold", reason: `Unknown strategy type: ${strategy.strategy_type}` };
   }
@@ -226,6 +239,58 @@ export function evaluateRebalance(
       chain: maxDriftChain,
       vault_address: config.vault_address,
       currency: symbol,
+    },
+  };
+}
+
+// ============================================================
+// Yield evaluator — park idle stablecoins in Aave V3
+// ============================================================
+
+export function evaluateYield(
+  strategy: AgentStrategy,
+  walletBalances: WalletBalance[]
+): StrategyDecision {
+  const config = strategy.config as YieldConfig;
+
+  // Find wallet balance on the configured chain
+  const balance = walletBalances.find((w) => w.chain === config.chain);
+  if (!balance) {
+    return {
+      decision: "hold",
+      reason: `No wallet balance available for ${config.chain}`,
+    };
+  }
+
+  const nativeBalance = parseFloat(balance.nativeBalance) || 0;
+
+  // Check if idle balance exceeds minimum threshold
+  if (nativeBalance < config.min_idle_amount) {
+    return {
+      decision: "hold",
+      reason: `Idle ${config.asset} balance (${nativeBalance.toFixed(2)}) below minimum threshold (${config.min_idle_amount}). Nothing to supply.`,
+    };
+  }
+
+  // Supply the amount above the minimum threshold to Aave
+  const supplyAmount = nativeBalance - config.min_idle_amount;
+
+  if (supplyAmount <= 0) {
+    return {
+      decision: "hold",
+      reason: "No excess balance to supply to Aave.",
+    };
+  }
+
+  return {
+    decision: "supply",
+    reason: `Yield opportunity: ${supplyAmount.toFixed(2)} ${config.asset} idle on ${config.chain}. Supplying to ${config.protocol} to earn yield.`,
+    supply: {
+      chain: config.chain,
+      token: config.token_address,
+      tokenSymbol: config.asset,
+      amount: supplyAmount,
+      protocol: config.protocol,
     },
   };
 }
