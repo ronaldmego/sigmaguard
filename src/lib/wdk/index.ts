@@ -26,3 +26,14 @@ export {
   type SwapExecutionResult,
   type SwapInput,
 } from "./swap";
+
+export {
+  quoteSupply,
+  supply,
+  getAccountData,
+  LENDING_TOKENS,
+  type LendingQuote,
+  type LendingResult,
+  type LendingAccountData,
+  type LendingInput,
+} from "./lending";

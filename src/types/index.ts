@@ -167,7 +167,7 @@ export interface AgentDecision {
 // Autonomous Agent types
 // ============================================================
 
-export type StrategyType = "dca" | "rebalance";
+export type StrategyType = "dca" | "rebalance" | "yield";
 
 export type AgentStatus = "running" | "paused" | "error";
 
@@ -192,18 +192,26 @@ export interface RebalanceConfig {
   chains: string[];
 }
 
+export interface YieldConfig {
+  asset: string;
+  chain: string;
+  token_address: string;
+  min_idle_amount: number;
+  protocol: "aave-v3";
+}
+
 export interface AgentStrategy {
   id: string;
   strategy_type: StrategyType;
   name: string;
   description: string | null;
-  config: DcaConfig | RebalanceConfig;
+  config: DcaConfig | RebalanceConfig | YieldConfig;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
 
-export type AgentRunDecision = "hold" | "transfer" | "swap";
+export type AgentRunDecision = "hold" | "transfer" | "swap" | "supply";
 
 export interface AgentRun {
   id: string;

@@ -1,7 +1,7 @@
 import type { AgentStatus, AgentStatusInfo, FinalOutcome } from "@/types";
 import { fetchMarketData } from "./market";
 import { evaluateStrategy } from "./strategies";
-import { getWalletBalance, getWalletAddress, quoteSwap } from "@/lib/wdk";
+import { getWalletBalance, getWalletAddress, quoteSwap, quoteSupply } from "@/lib/wdk";
 import { CHAINS } from "@/lib/wdk/chains";
 import { processTransaction } from "@/lib/governance/pipeline";
 import {
@@ -197,8 +197,61 @@ async function runAgentCycle(): Promise<void> {
               err
             );
           }
+        } else if (result.decision === "supply" && result.supply) {
+          // 5b. Supply to Aave — get quote, then submit through governance
+          console.log(
+            `[PEPA Agent] Strategy "${strategy.name}": SUPPLY ${result.supply.amount} ${result.supply.tokenSymbol} to ${result.supply.protocol} on ${result.supply.chain}`
+          );
+
+          try {
+            // Get real Aave quote before governance decision
+            const amountWei = BigInt(Math.round(result.supply.amount * 1e6)); // USDT uses 6 decimals
+            let quoteInfo = "";
+            try {
+              const quote = await quoteSupply({
+                chain: result.supply.chain,
+                token: result.supply.token,
+                amount: amountWei,
+              });
+              quoteInfo = ` (gas fee: ${quote.fee})`;
+              result.supply.quoteFee = quote.fee;
+              console.log(`[PEPA Agent] Aave supply quote: fee=${quote.fee}`);
+            } catch (quoteErr) {
+              console.warn(`[PEPA Agent] Aave quote failed (proceeding with governance):`, quoteErr);
+              quoteInfo = " (quote unavailable — testnet)";
+            }
+
+            // Submit supply through governance pipeline as a transaction
+            const walletAddress = await getWalletAddress(result.supply.chain);
+            const { transaction, result: govResult } = await processTransaction(
+              walletAddress,
+              {
+                recipient: result.supply.token, // Aave pool token as recipient
+                amount: result.supply.amount,
+                currency: result.supply.tokenSymbol,
+                chain: result.supply.chain,
+                category: "agent_lending",
+                merchant: `pepa_agent_yield_${result.supply.protocol}`,
+                description: `${result.reason}${quoteInfo}`,
+              }
+            );
+
+            transactionId = transaction.id;
+            governanceOutcome = govResult.final_outcome;
+
+            console.log(
+              `[PEPA Agent] Supply governance outcome: ${governanceOutcome} (tx: ${transactionId})`
+            );
+
+            await updateStrategyLastExecution(strategy.id);
+          } catch (err) {
+            console.error(
+              `[PEPA Agent] Supply pipeline error for strategy "${strategy.name}":`,
+              err
+            );
+          }
         } else if (result.decision === "transfer" && result.transfer) {
-          // 5b. Submit transfer through governance pipeline
+          // 5c. Submit transfer through governance pipeline
           console.log(
             `[PEPA Agent] Strategy "${strategy.name}": TRANSFER ${result.transfer.amount} ${result.transfer.currency} on ${result.transfer.chain}`
           );
