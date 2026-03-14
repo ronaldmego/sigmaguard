@@ -16,8 +16,8 @@ const CHAIN_LABELS: Record<string, string> = {
 };
 
 const CHAIN_COLORS: Record<string, string> = {
-  "ethereum-sepolia": "text-violet-400",
-  "polygon-amoy": "text-cyan-400",
+  "ethereum-sepolia": "text-brand-700",
+  "polygon-amoy": "text-accent-600",
 };
 
 function truncateAddress(addr: string): string {
@@ -39,37 +39,37 @@ export default function WalletOverview({
   }
 
   return (
-    <div className="bg-[#12121e] border border-gray-800/50 rounded-xl p-5 h-full">
-      <h2 className="text-sm font-medium text-gray-400 mb-4">Wallet</h2>
+    <div className="bg-white border border-gray-200 rounded-xl p-5 h-full">
+      <h2 className="text-sm font-medium text-gray-500 mb-4">Wallet</h2>
       <div className="grid grid-cols-2 gap-4">
         {wallets.map((w) => (
           <div key={w.chain}>
-            <p className="text-xs text-gray-500 mb-1">
+            <p className="text-xs text-gray-400 mb-1">
               {CHAIN_LABELS[w.chain] || w.chain}
             </p>
             <p
-              className={`text-xl font-bold ${CHAIN_COLORS[w.chain] || "text-gray-200"}`}
+              className={`text-xl font-bold ${CHAIN_COLORS[w.chain] || "text-gray-800"}`}
             >
               {parseFloat(w.nativeBalance).toFixed(4)}{" "}
-              <span className="text-sm font-normal text-gray-500">
+              <span className="text-sm font-normal text-gray-400">
                 {w.nativeSymbol}
               </span>
             </p>
             <button
               onClick={() => copyAddress(w.chain, w.address)}
-              className="text-xs text-gray-600 hover:text-gray-400 font-mono mt-1 transition-colors"
+              className="text-xs text-gray-400 hover:text-gray-600 font-mono mt-1 transition-colors"
             >
               {copiedChain === w.chain
                 ? "Copied!"
                 : truncateAddress(w.address)}
             </button>
             {w.error && (
-              <p className="text-xs text-red-400 mt-1">{w.error}</p>
+              <p className="text-xs text-red-500 mt-1">{w.error}</p>
             )}
           </div>
         ))}
         {wallets.length === 0 && (
-          <p className="text-sm text-gray-600">No wallets configured</p>
+          <p className="text-sm text-gray-400">No wallets configured</p>
         )}
       </div>
     </div>

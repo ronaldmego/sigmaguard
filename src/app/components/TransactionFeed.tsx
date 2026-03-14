@@ -68,23 +68,23 @@ export default function TransactionFeed({
   return (
     <div
       id="transactions"
-      className="bg-[#12121e] border border-gray-800/50 rounded-xl overflow-hidden"
+      className="bg-white border border-gray-200 rounded-xl overflow-hidden"
     >
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800/30">
-        <h2 className="text-sm font-medium text-gray-400">Transactions</h2>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <h2 className="text-sm font-medium text-gray-500">Transactions</h2>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-gray-400">
             {transactions.length} total
           </span>
           <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-live-pulse" />
-            <span className="text-xs text-gray-500">Live</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-live-pulse" />
+            <span className="text-xs text-gray-400">Live</span>
           </div>
         </div>
       </div>
       <div className="max-h-[500px] overflow-y-auto">
         {transactions.length === 0 ? (
-          <p className="text-center text-gray-600 py-8">
+          <p className="text-center text-gray-400 py-8">
             No transactions yet
           </p>
         ) : (
