@@ -60,7 +60,18 @@ Judge clones repo, sees autonomous agent making governed trades in realtime with
 
 ---
 
-## Phase 5 — Submission 🎯 CURRENT (Mar 19 – Mar 22)
+## Phase 5.5 — Pre-Submission Quick Wins 🎯 CURRENT (Mar 13 – Mar 19)
+
+> Post-competitive audit: 4 competitors already submitted. These close identified gaps.
+
+- [ ] Color palette: violet+gold/amber (differentiate from blue/green/purple competitors)
+- [x] Migrate OpenAI GPT-5.2 → Claude (Anthropic SDK) — ecosystem alignment
+- [ ] Integrate additional WDK modules (swap, lending, MCP toolkit, x402) — visibility
+- [ ] Prepare DoraHacks BUIDL page
+
+---
+
+## Phase 6 — Submission (Mar 19 – Mar 22)
 
 - [ ] Demo video (Ronald handles this)
 - [ ] DoraHacks submission

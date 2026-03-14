@@ -19,12 +19,12 @@
     "test:agent": "vitest run tests/agent/"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@supabase/supabase-js": "^2.98.0",
     "@tetherto/wdk": "1.0.0-beta.5",
     "@tetherto/wdk-wallet-evm": "1.0.0-beta.8",
     "dotenv": "^17.3.1",
     "next": "15.5.12",
-    "openai": "6.25.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.8.0",

@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import type {
   TransactionInput,
   RulesResult,
@@ -7,14 +7,14 @@ import type {
   AgentRecommendation,
 } from "@/types";
 
-const MODEL = "gpt-5.2";
+const MODEL = "claude-sonnet-4-6";
 
-function getOpenAIClient(): OpenAI {
-  const apiKey = process.env.OPENAI_API_KEY;
+function getAnthropicClient(): Anthropic {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY not set in environment");
+    throw new Error("ANTHROPIC_API_KEY not set in environment");
   }
-  return new OpenAI({ apiKey });
+  return new Anthropic({ apiKey });
 }
 
 const SYSTEM_PROMPT = `You are PEPA, an AI financial governance assistant. Your role is to INTERPRET statistical and rules-based analysis results — you do NOT make financial decisions yourself.
@@ -36,7 +36,7 @@ Recommendation options:
 - "flag_for_review": Anomaly detected but rules passed — needs human review
 - "reject": Rules failed — hard block
 
-Respond in JSON format:
+Respond ONLY with valid JSON, no other text:
 {
   "explanation": "2-4 sentence explanation in English",
   "recommendation": "auto_approve" | "flag_for_review" | "reject",
@@ -48,26 +48,26 @@ export async function interpretTransaction(
   rulesResult: RulesResult,
   anomalyResult: AnomalyResult
 ): Promise<AgentInterpretation> {
-  const client = getOpenAIClient();
+  const client = getAnthropicClient();
 
   const userPrompt = buildUserPrompt(transaction, rulesResult, anomalyResult);
   const startTime = Date.now();
 
-  const completion = await client.chat.completions.create({
+  const message = await client.messages.create({
     model: MODEL,
+    system: SYSTEM_PROMPT,
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
       { role: "user", content: userPrompt },
     ],
-    response_format: { type: "json_object" },
+    max_tokens: 500,
     temperature: 0.1,
-    max_completion_tokens: 500,
   });
 
   const latencyMs = Date.now() - startTime;
-  const rawResponse = completion.choices[0]?.message?.content ?? "{}";
+  const rawResponse =
+    message.content[0]?.type === "text" ? message.content[0].text : "{}";
   const tokensUsed =
-    (completion.usage?.prompt_tokens ?? 0) + (completion.usage?.completion_tokens ?? 0);
+    (message.usage?.input_tokens ?? 0) + (message.usage?.output_tokens ?? 0);
 
   let parsed: { explanation: string; recommendation: string; confidence: number };
   try {
