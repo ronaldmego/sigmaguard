@@ -52,7 +52,7 @@ const SCENARIOS: TickScenario[] = [
   { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 10.1 },
   { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 7.5  },
   { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 12.3 },
-  { dca: "transfer", rebalance: "transfer", rebalanceAmount: 9.50, flagged: false, driftPct: 16.8 },
+  { dca: "transfer", rebalance: "transfer", rebalanceAmount: 5.80, flagged: false, driftPct: 16.8 },
   { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 11.4 },
   { dca: "transfer", rebalance: "hold",     rebalanceAmount: 0,    flagged: false, driftPct: 9.7  },
   { dca: "transfer", rebalance: "transfer", rebalanceAmount: 35,   flagged: true,  driftPct: 28.5 },
