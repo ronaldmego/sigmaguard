@@ -22,11 +22,12 @@ export default function AnalyticsMini({ transactions, pendingCount }: Props) {
     (sum, t) => sum + Number(t.amount),
     0
   );
+  const avgTx = transactions.length > 0 ? totalSpend / transactions.length : 0;
 
   const stats = [
     {
-      label: "Total Spend",
-      value: `$${totalSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      label: "Avg Transaction",
+      value: `$${avgTx.toFixed(2)}`,
       color: "text-accent-600",
     },
     {

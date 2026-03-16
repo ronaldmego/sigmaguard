@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -23,12 +23,14 @@ interface ChartPoint {
   amount: number;
   label: string;
   outcome: "auto_approve" | "flag_for_review";
+  zScore: number | null;
 }
 
 export default function GovernanceChart({ transactions }: Props) {
-  const { approvedData, flaggedData, mean, upperBand, totalDeployed } =
+  const [showMethodology, setShowMethodology] = useState(false);
+
+  const { approvedData, flaggedData, chartMean, chartStd, upperBand, sampleSize, totalDeployed } =
     useMemo(() => {
-      // Only transactions with governance_result (agent/simulation txs)
       const governed = transactions
         .filter((t) => t.governance_result != null)
         .sort(
@@ -36,14 +38,27 @@ export default function GovernanceChart({ transactions }: Props) {
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
 
+      const amounts = governed.map((t) => Number(t.amount));
+
+      // Compute stats from ALL governed transactions (matches anomaly engine approach)
+      const n = amounts.length;
+      const avg = n > 0 ? amounts.reduce((s, v) => s + v, 0) / n : 0;
+      const sd =
+        n > 1
+          ? Math.sqrt(
+              amounts.reduce((s, v) => s + (v - avg) ** 2, 0) / (n - 1)
+            )
+          : 1;
+      const threshold = 2;
+      const upper = avg + threshold * sd;
+
       const approved: ChartPoint[] = [];
       const flagged: ChartPoint[] = [];
-
       let sum = 0;
-      let count = 0;
 
       governed.forEach((t, i) => {
         const amount = Number(t.amount);
+        const z = sd > 0 ? (amount - avg) / sd : 0;
         const outcome =
           t.governance_result?.final_outcome === "flag_for_review"
             ? "flag_for_review"
@@ -54,6 +69,7 @@ export default function GovernanceChart({ transactions }: Props) {
           amount,
           label: t.description || `Tx ${i + 1}`,
           outcome,
+          zScore: Math.round(z * 100) / 100,
         };
 
         if (outcome === "flag_for_review") {
@@ -63,24 +79,15 @@ export default function GovernanceChart({ transactions }: Props) {
         }
 
         sum += amount;
-        count++;
       });
-
-      const computedMean = count > 0 ? sum / count : 0;
-      // Use anomaly_result stats if available, otherwise compute from data
-      const firstGoverned = governed[0];
-      const statsFromResult =
-        firstGoverned?.governance_result?.anomaly_result;
-      const historicalMean = statsFromResult?.historical_mean ?? computedMean;
-      const historicalStd = statsFromResult?.historical_std ?? 1;
-      const threshold = statsFromResult?.threshold ?? 2;
-      const upper = historicalMean + threshold * historicalStd;
 
       return {
         approvedData: approved,
         flaggedData: flagged,
-        mean: historicalMean,
-        upperBand: upper,
+        chartMean: Math.round(avg * 100) / 100,
+        chartStd: Math.round(sd * 100) / 100,
+        upperBand: Math.round(upper * 100) / 100,
+        sampleSize: n,
         totalDeployed: sum,
       };
     }, [transactions]);
@@ -103,7 +110,6 @@ export default function GovernanceChart({ transactions }: Props) {
     );
   }
 
-  // Y-axis domain: small negative padding so points don't sit on the floor
   const allAmounts = [...approvedData, ...flaggedData].map((d) => d.amount);
   const maxAmount = Math.max(...allAmounts);
   const yMax = Math.ceil(maxAmount * 1.15);
@@ -117,6 +123,13 @@ export default function GovernanceChart({ transactions }: Props) {
           <h3 className="text-sm font-medium text-gray-700">
             Anomaly Detection
           </h3>
+          <button
+            onClick={() => setShowMethodology(!showMethodology)}
+            className="text-[10px] text-gray-400 hover:text-brand-600 border border-gray-200 hover:border-brand-300 rounded px-1.5 py-0.5 transition-colors"
+            title="Statistical methodology"
+          >
+            {showMethodology ? "Hide method" : "Methodology"}
+          </button>
         </div>
         <div className="flex items-center gap-4 text-xs text-gray-400">
           <span className="flex items-center gap-1.5">
@@ -133,6 +146,37 @@ export default function GovernanceChart({ transactions }: Props) {
           </span>
         </div>
       </div>
+
+      {/* Methodology panel (collapsible) */}
+      {showMethodology && (
+        <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 space-y-1.5">
+          <p className="font-medium text-gray-700">Statistical Methodology — Six Sigma Anomaly Detection</p>
+          <p>
+            <span className="font-mono text-brand-600">Z-score = (x - μ) / σ</span>
+            {" "}— measures how many standard deviations a transaction deviates from the historical mean.
+            Threshold: |z| &gt; 2.0 (95.4% confidence interval).
+          </p>
+          <p>
+            <span className="font-mono text-brand-600">IQR method</span>
+            {" "}— secondary detector using Q1/Q3 percentiles. Outlier if x &lt; Q1−1.5·IQR or x &gt; Q3+1.5·IQR.
+            Robust against non-normal distributions.
+          </p>
+          <div className="border-t border-gray-200 pt-1.5 mt-1.5 space-y-0.5">
+            <p>
+              <span className="text-gray-500">μ</span> = <span className="font-mono">${chartMean.toFixed(2)}</span>
+              {" · "}
+              <span className="text-gray-500">σ</span> = <span className="font-mono">${chartStd.toFixed(2)}</span>
+              {" · "}
+              <span className="text-gray-500">n</span> = <span className="font-mono">{sampleSize}</span>
+              {" · "}
+              <span className="text-gray-500">2σ threshold</span> = <span className="font-mono text-copper-600">${upperBand.toFixed(2)}</span>
+            </p>
+            <p className="text-gray-400">
+              Computed dynamically from last 200 executed transactions per wallet. Uses Bessel&apos;s correction (n−1) for sample standard deviation.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Agent Performance Summary */}
       <div className="flex items-center gap-6 mb-4 text-xs">
@@ -209,6 +253,14 @@ export default function GovernanceChart({ transactions }: Props) {
                       ${data.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </span>
                   </p>
+                  {data.zScore !== null && (
+                    <p className="text-gray-500">
+                      Z-score:{" "}
+                      <span className={`font-mono ${Math.abs(data.zScore) > 2 ? "text-copper-600 font-medium" : "text-gray-700"}`}>
+                        {data.zScore.toFixed(2)}
+                      </span>
+                    </p>
+                  )}
                   <p className="mt-1">
                     <span
                       className={
@@ -227,7 +279,7 @@ export default function GovernanceChart({ transactions }: Props) {
             }}
           />
 
-          {/* Normal zone band (mean +/- threshold*sigma) */}
+          {/* Normal zone band (mean + threshold*sigma) */}
           <ReferenceArea
             y1={0}
             y2={upperBand}
@@ -240,12 +292,12 @@ export default function GovernanceChart({ transactions }: Props) {
 
           {/* Mean line */}
           <ReferenceLine
-            y={mean}
+            y={chartMean}
             stroke="#0D9488"
             strokeDasharray="6 4"
             strokeOpacity={0.5}
             label={{
-              value: `\u03BC = $${mean.toFixed(2)}`,
+              value: `\u03BC = $${chartMean.toFixed(2)}`,
               position: "right",
               fill: "#0D9488",
               fontSize: 10,
