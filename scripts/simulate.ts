@@ -11,7 +11,7 @@ config({ path: join(__dirname, "..", ".env") });
 // ============================================================
 
 const VAULT_ADDRESS = "0x000000000000000000000000000000000000dEaD";
-const TICK_DELAY_MS = 25_000; // 25s between ticks → 12 ticks ≈ 5 min
+const TICK_DELAY_MS = 15_000; // 15s between ticks → 12 ticks ≈ 3 min
 const TOTAL_TICKS = 12;
 
 // Base prices for simulation (realistic ETH/MATIC)
