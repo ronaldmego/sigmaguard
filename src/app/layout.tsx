@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PEPA Wallet Intelligence",
-  description: "AI-governed wallet with 4-layer transaction governance",
+  title: "PEPA — Statistical DeFi Intelligence",
+  description: "Autonomous DeFi agent with Six Sigma anomaly detection and 4-layer governance pipeline",
 };
 
 export default function RootLayout({

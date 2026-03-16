@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#0D9488" />
+
+  <!-- Normal distribution curve (bell curve) -->
+  <path d="M4 24 Q6 23 8 21 Q10 17 12 12 Q14 7 16 5 Q18 7 20 12 Q22 17 24 21 Q26 23 28 24"
+        fill="none" stroke="white" stroke-width="2" stroke-linecap="round" />
+
+  <!-- Mean line (mu) -->
+  <line x1="16" y1="4" x2="16" y2="25" stroke="white" stroke-width="0.5" stroke-dasharray="1.5 1" opacity="0.5" />
+
+  <!-- 2-sigma rejection zones (shaded) -->
+  <path d="M4 24 Q6 23 8 21 Q9 19 10 17 L10 24 Z" fill="#DC2626" opacity="0.6" />
+  <path d="M28 24 Q26 23 24 21 Q23 19 22 17 L22 24 Z" fill="#DC2626" opacity="0.6" />
+
+  <!-- Baseline -->
+  <line x1="3" y1="24" x2="29" y2="24" stroke="white" stroke-width="1" opacity="0.7" />
+
+  <!-- Sigma markers -->
+  <text x="9" y="28" font-size="4" fill="white" font-family="sans-serif" text-anchor="middle" opacity="0.8">-2s</text>
+  <text x="23" y="28" font-size="4" fill="white" font-family="sans-serif" text-anchor="middle" opacity="0.8">2s</text>
+</svg>

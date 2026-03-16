@@ -7,7 +7,7 @@ import DashboardShell from "./components/DashboardShell";
 import WalletOverview from "./components/WalletOverview";
 import AnalyticsMini from "./components/AnalyticsMini";
 import AgentPanel from "./components/AgentPanel";
-import PortfolioAllocation from "./components/PortfolioAllocation";
+import AgentVolume from "./components/AgentVolume";
 import AgentActivityFeed from "./components/AgentActivityFeed";
 import TransactionFeed from "./components/TransactionFeed";
 import ApprovalQueue from "./components/ApprovalQueue";
@@ -129,10 +129,10 @@ export default function Home() {
         <div id="overview" className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
-              AI-Governed DeFi Agent
+              Statistical DeFi Intelligence Agent
             </h1>
             <p className="text-xs text-gray-400 mt-1">
-              Autonomous wallet — 4-layer transaction governance
+              Z-score anomaly detection · 4-layer governance · autonomous execution
             </p>
           </div>
           <div className="flex items-center gap-1.5 mr-24">
@@ -161,7 +161,7 @@ export default function Home() {
               <AgentPanel />
             </div>
             <div>
-              <PortfolioAllocation wallets={wallets} />
+              <AgentVolume transactions={transactions} />
             </div>
           </div>
           {/* Governance Anomaly Detection Chart */}
