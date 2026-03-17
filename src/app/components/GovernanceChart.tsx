@@ -96,8 +96,8 @@ export default function GovernanceChart({ transactions }: Props) {
 
   if (totalPoints === 0) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
           <div className="w-2 h-2 rounded-full bg-brand-600" />
           <h3 className="text-sm font-medium text-gray-600">
             Anomaly Detection
@@ -116,7 +116,7 @@ export default function GovernanceChart({ transactions }: Props) {
   const yMin = -maxAmount * 0.05;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 relative">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-brand-600" />
@@ -147,9 +147,9 @@ export default function GovernanceChart({ transactions }: Props) {
         </div>
       </div>
 
-      {/* Methodology panel (collapsible) */}
+      {/* Methodology panel (overlay — does not affect card height) */}
       {showMethodology && (
-        <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 space-y-1.5">
+        <div className="absolute top-10 left-4 right-4 z-20 p-2.5 bg-white border border-gray-200 rounded-lg shadow-lg text-xs text-gray-600 space-y-1">
           <p className="font-medium text-gray-700">Statistical Methodology — Six Sigma Anomaly Detection</p>
           <p>
             <span className="font-mono text-brand-600">Z-score = (x - μ) / σ</span>
@@ -161,7 +161,7 @@ export default function GovernanceChart({ transactions }: Props) {
             {" "}— secondary detector using Q1/Q3 percentiles. Outlier if x &lt; Q1−1.5·IQR or x &gt; Q3+1.5·IQR.
             Robust against non-normal distributions.
           </p>
-          <div className="border-t border-gray-200 pt-1.5 mt-1.5 space-y-0.5">
+          <div className="border-t border-gray-200 pt-1 mt-1 space-y-0.5">
             <p>
               <span className="text-gray-500">μ</span> = <span className="font-mono">${chartMean.toFixed(2)}</span>
               {" · "}
@@ -179,7 +179,7 @@ export default function GovernanceChart({ transactions }: Props) {
       )}
 
       {/* Agent Performance Summary */}
-      <div className="flex items-center gap-6 mb-4 text-xs">
+      <div className="flex items-center gap-6 mb-2 text-xs">
         <span className="text-gray-400">
           Agent Deployed:{" "}
           <span className="text-accent-600 font-mono font-medium">
@@ -206,7 +206,7 @@ export default function GovernanceChart({ transactions }: Props) {
         )}
       </div>
 
-      <ResponsiveContainer width="100%" height={260}>
+      <ResponsiveContainer width="100%" height={220}>
         <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
           <CartesianGrid
             strokeDasharray="3 3"
