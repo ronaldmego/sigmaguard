@@ -48,14 +48,14 @@ export default function AnalyticsMini({ transactions, pendingCount }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-full">
+    <div className="grid grid-cols-2 gap-3 h-full">
       {stats.map((s) => (
         <div
           key={s.label}
-          className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-center"
+          className="bg-white border border-gray-200 rounded-xl p-3 flex flex-col justify-center"
         >
-          <p className="text-xs text-gray-400 mb-1">{s.label}</p>
-          <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+          <p className="text-xs text-gray-400 mb-0.5">{s.label}</p>
+          <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
         </div>
       ))}
     </div>

@@ -27,6 +27,7 @@ interface PortfolioSnapshot {
   eth: number;
   matic: number;
   usdt: number;
+  prices: { eth: number; matic: number } | null;
 }
 
 export default function Home() {
@@ -63,7 +64,11 @@ export default function Home() {
       setTransactions(txRes.transactions || []);
       setApprovals(approvalsRes.approvals || []);
       setRules(rulesRes.rules || []);
-      setPortfolioSnapshot(snapshotRes.snapshot ?? null);
+      setPortfolioSnapshot(
+        snapshotRes.snapshot
+          ? { ...snapshotRes.snapshot, prices: snapshotRes.prices ?? null }
+          : null
+      );
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data");
@@ -135,14 +140,14 @@ export default function Home() {
     <>
     <DemoBanner onVisibilityChange={setDemoBannerVisible} />
     <DashboardShell pendingCount={approvals.length}>
-      <div className={`p-4 md:p-6 space-y-6 max-w-6xl mx-auto ${demoBannerVisible ? "pt-14 md:pt-16" : ""}`}>
+      <div className={`p-3 md:p-4 space-y-4 max-w-6xl mx-auto ${demoBannerVisible ? "pt-14 md:pt-16" : ""}`}>
         {/* Header */}
         <div id="overview" className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
               Statistical DeFi Intelligence Agent
             </h1>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 mt-0.5">
               Z-score anomaly detection · 4-layer governance · autonomous execution
             </p>
           </div>
@@ -153,11 +158,11 @@ export default function Home() {
         </div>
 
         {/* Top row: Wallet + Analytics */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-stretch">
+          <div className="md:col-span-2 h-full">
             <WalletOverview wallets={wallets} portfolioSnapshot={portfolioSnapshot} />
           </div>
-          <div className="md:col-span-3">
+          <div className="md:col-span-3 h-full">
             <AnalyticsMini
               transactions={transactions}
               pendingCount={approvals.length}
