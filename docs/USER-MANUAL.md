@@ -54,7 +54,7 @@ Click **"Run Demo"**. This launches a 12-tick simulation (~5 minutes) that compr
 | Tick | Time | What happens |
 |------|------|-------------|
 | 1–4 | 00:00–06:00 | Normal DCA purchases ($2.40–$5.40 USDT) — all auto-approved |
-| 5 | 08:00 | Small market dip → $9.50 rebalance — auto-approved |
+| 5 | 08:00 | Small market dip → $5.80 rebalance — auto-approved |
 | 6–7 | 10:00–12:00 | Normal DCA continues |
 | **8** | **14:00** | **Market crash (ETH -18%)** → **$35 rebalance** → z-score 3.2 → **FLAGGED as anomaly** |
 | 9–12 | 16:00–22:00 | Market recovers, normal DCA resumes |
@@ -85,7 +85,7 @@ This is the human-in-the-loop layer in action.
 ### Top Row (2 cards)
 | Card | What it shows |
 |------|--------------|
-| **Wallet Overview** | ETH (Sepolia) and MATIC (Amoy) wallet addresses and native balances |
+| **Wallet Overview** | **Portfolio** (ETH, MATIC, USDT — live during demo, updates each tick) + **Gas** (real testnet balances and addresses via WDK) |
 | **Metrics Grid** (4 mini cards) | Avg Transaction · Transactions count · Anomaly Rate · Pending Approvals |
 
 ### Agent Section (3 cards)
@@ -159,5 +159,6 @@ Complementary method using percentiles (Q1, Q3) to identify outliers without ass
 | Demo doesn't start | Click "Reset DB" first, then "Run Demo" |
 | Approval Queue is empty | Run the demo — anomaly appears at tick 8 (~3 min in) |
 | "Start Agent" is disabled | You're in Demo Mode. Switch to Production or use "Run Demo" |
-| Wallet shows 0 balance | Expected on testnet without faucet funds. Doesn't affect demo |
+| Portfolio shows "Run demo to see live balances" | Normal before first simulation. Click Run Demo and balances will update each tick |
+| Gas balance shows 0 MATIC | Expected — Polygon Amoy testnet wallet has no faucet funds. Doesn't affect demo |
 | Server died | `pm2 restart pepa-dev` or `pm2 start "npx next dev -p 4007 -H 100.64.216.28" --name pepa-dev` |
