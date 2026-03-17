@@ -18,6 +18,25 @@ const TOTAL_TICKS = 12;
 const BASE_ETH_PRICE = 2450;
 const BASE_MATIC_PRICE = 0.85;
 
+// Simulated portfolio balances per tick (what the agent manages)
+// ETH grows via DCA, then drops at tick 10 when $35 rebalance is approved
+// MATIC decreases slightly at tick 5 (small rebalance), stable otherwise
+// USDT jumps at tick 10 (received from ETH→USDT swap)
+const SIM_WALLET: { eth: number; matic: number; usdt: number }[] = [
+  { eth: 0.0263, matic: 55.0, usdt: 6.20  },  // Tick 1:  DCA accumulating
+  { eth: 0.0274, matic: 55.0, usdt: 9.00  },  // Tick 2:  ETH growing
+  { eth: 0.0293, matic: 55.0, usdt: 5.50  },  // Tick 3:  minor dip
+  { eth: 0.0307, matic: 55.0, usdt: 9.10  },  // Tick 4:  recovery
+  { eth: 0.0304, matic: 55.0, usdt: 8.40  },  // Tick 5:  small rebalance (ETH sold $5.80)
+  { eth: 0.0315, matic: 55.0, usdt: 8.40  },  // Tick 6:  DCA normal
+  { eth: 0.0335, matic: 55.0, usdt: 8.40  },  // Tick 7:  DCA normal
+  { eth: 0.0335, matic: 55.0, usdt: 5.50  },  // Tick 8:  CRASH — rebalance pending approval
+  { eth: 0.0335, matic: 55.0, usdt: 5.50  },  // Tick 9:  awaiting approval
+  { eth: 0.0166, matic: 55.0, usdt: 40.50 },  // Tick 10: APPROVED — ETH sold $35, USDT received
+  { eth: 0.0179, matic: 55.0, usdt: 40.50 },  // Tick 11: DCA resumes
+  { eth: 0.0190, matic: 55.0, usdt: 40.50 },  // Tick 12: recovering
+];
+
 // Price multipliers per tick (simulates 24h of market movement)
 // Tick 8 is the crash
 const PRICE_MULTIPLIERS: { eth: number; matic: number }[] = [
@@ -84,10 +103,16 @@ function buildMarketData(tick: number) {
   const m = PRICE_MULTIPLIERS[tick];
   const ethPrice = Math.round(BASE_ETH_PRICE * m.eth * 100) / 100;
   const maticPrice = Math.round(BASE_MATIC_PRICE * m.matic * 1000) / 1000;
+  const wallet = SIM_WALLET[tick];
   return {
     prices: {
       ethereum: { usd: ethPrice, usd_24h_change: Math.round((m.eth - 1) * 100 * 100) / 100 },
       "matic-network": { usd: maticPrice, usd_24h_change: Math.round((m.matic - 1) * 100 * 100) / 100 },
+    },
+    wallet_snapshot: {
+      eth: wallet.eth,
+      matic: wallet.matic,
+      usdt: wallet.usdt,
     },
     fetched_at: new Date().toISOString(),
   };

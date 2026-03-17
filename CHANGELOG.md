@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Simulated portfolio balances in Wallet Overview card during demo ([#21](https://github.com/ronaldmego/sigmaguard/issues/21)): ETH/MATIC/MATIC evolve per tick, USDT jumps +$35 at tick 10 when rebalance is approved — narrative matches the crash scenario
+- New API endpoint `/api/agent/wallet-snapshot` — reads latest `agent_run.market_data.wallet_snapshot`
+- Clear labels: "Portfolio" (simulated, live during demo) vs "Gas (testnet)" (real WDK on-chain)
 - WDK Lending: Aave V3 integration for idle funds yield strategy — `quoteSupply` + `supply` + `getAccountData` via `@tetherto/wdk-protocol-lending-aave-evm` ([#18](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/18))
 - New "yield" strategy type: agent parks idle stablecoins in Aave V3 when balance exceeds threshold
 - Supply decisions go through full 4-layer governance pipeline
