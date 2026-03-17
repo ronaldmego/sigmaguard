@@ -1,4 +1,4 @@
-# ROADMAP — PEPA Wallet Intelligence
+# ROADMAP — SigmaGuard
 
 ## Track: 🌊 Autonomous DeFi Agent + 🤖 Agent Wallets
 ## Timeline: Feb 27 → Mar 22, 2026

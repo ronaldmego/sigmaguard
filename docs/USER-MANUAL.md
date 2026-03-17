@@ -1,13 +1,13 @@
-# PEPA — User Manual
+# SigmaGuard — User Manual
 
 **Statistical DeFi Intelligence Agent**
 Z-score anomaly detection · 4-layer governance · autonomous execution
 
 ---
 
-## What is PEPA?
+## What is SigmaGuard?
 
-PEPA is an autonomous DeFi agent that manages cryptocurrency wallets with a 4-layer governance pipeline inspired by Six Sigma statistical quality control. Unlike other DeFi agents that rely on LLM "vibes" to detect suspicious activity, PEPA uses **Z-score and IQR statistical methods** to mathematically identify anomalous transactions — the same methodology used in industrial quality control and financial risk management.
+SigmaGuard is an autonomous DeFi agent that manages cryptocurrency wallets with a 4-layer governance pipeline inspired by Six Sigma statistical quality control. Unlike other DeFi agents that rely on LLM "vibes" to detect suspicious activity, SigmaGuard uses **Z-score and IQR statistical methods** to mathematically identify anomalous transactions — the same methodology used in industrial quality control and financial risk management.
 
 **The 4 layers:**
 1. **Fixed Rules** — Hard limits (max amount, daily cap, blacklisted categories)
@@ -20,8 +20,8 @@ PEPA is an autonomous DeFi agent that manages cryptocurrency wallets with a 4-la
 ## First-Time Setup
 
 ```bash
-git clone https://github.com/ronaldmego/pepa-wallet-intelligence.git
-cd pepa-wallet-intelligence
+git clone https://github.com/ronaldmego/sigmaguard.git
+cd sigmaguard
 npm install
 cp .env.example .env    # Fill in your keys (see .env.example for details)
 npm run db:setup        # Create Supabase schema
@@ -33,7 +33,7 @@ npm run dev             # Open http://localhost:4007
 
 ## Running the Demo (Zero Terminal — For Judges)
 
-This is the fastest way to see PEPA in action. No terminal commands needed after initial setup.
+This is the fastest way to see SigmaGuard in action. No terminal commands needed after initial setup.
 
 ### Step 1: Open the Dashboard
 Navigate to the dashboard URL in your browser.

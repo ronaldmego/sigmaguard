@@ -17,7 +17,7 @@ function getAnthropicClient(): Anthropic {
   return new Anthropic({ apiKey });
 }
 
-const SYSTEM_PROMPT = `You are PEPA, an AI financial governance assistant. Your role is to INTERPRET statistical and rules-based analysis results — you do NOT make financial decisions yourself.
+const SYSTEM_PROMPT = `You are SigmaGuard, an AI financial governance assistant. Your role is to INTERPRET statistical and rules-based analysis results — you do NOT make financial decisions yourself.
 
 You receive:
 1. The transaction details
