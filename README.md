@@ -1,4 +1,4 @@
-# PEPA — Statistical DeFi Intelligence Agent
+# Statistical DeFi Intelligence Agent
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-111_passing-brightgreen.svg)](#testing)
@@ -20,7 +20,7 @@ Most "agent + wallet" solutions give the agent a wallet and cross their fingers.
 
 ## Our Solution
 
-PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfolio rebalancing via DEX swaps, yield farming on Aave) through a **4-layer governance pipeline** inspired by **Six Sigma statistical quality control**:
+SigmaGuard is an autonomous DeFi agent that executes financial strategies (DCA, portfolio rebalancing via DEX swaps, yield farming on Aave) through a **4-layer governance pipeline** inspired by **Six Sigma statistical quality control**:
 
 | Layer | Role | How |
 |-------|------|-----|
@@ -33,7 +33,7 @@ PEPA is an autonomous DeFi agent that executes financial strategies (DCA, portfo
 
 The anomaly detection engine computes **Z-scores and IQR** dynamically from the last 200 transactions. Mean and standard deviation are calculated with Bessel's correction (n−1). This is the same methodology used in industrial quality control, financial risk management, and fraud detection.
 
-| | LLM-based detection (competitors) | PEPA's statistical detection |
+| | LLM-based detection (competitors) | SigmaGuard's statistical detection |
 |--|---|---|
 | **Reproducibility** | Ask twice, get different answers | Same data = same result, always |
 | **Auditability** | "The AI thinks it's suspicious" | "z-score = 3.2, exceeds ±2σ threshold" |
@@ -55,8 +55,8 @@ The anomaly detection engine computes **Z-scores and IQR** dynamically from the 
 ## Quick Start (< 5 minutes)
 
 ```bash
-git clone https://github.com/ronaldmego/pepa-wallet-intelligence.git
-cd pepa-wallet-intelligence
+git clone https://github.com/ronaldmego/sigmaguard.git
+cd sigmaguard
 npm install
 cp .env.example .env   # Fill in Supabase + Anthropic + WDK keys
 npm run db:setup        # Create schema + tables
@@ -158,7 +158,7 @@ A transaction is flagged if **either** method detects it as anomalous. The dashb
 
 ## What Makes This Different
 
-| Typical Agent Wallet | PEPA |
+| Typical Agent Wallet | SigmaGuard |
 |---------------------|------|
 | Agent has wallet, no controls | Agent has wallet + 4-layer governance |
 | LLM decides if "suspicious" | Statistical model detects anomalies (Z-score/IQR) |
