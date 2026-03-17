@@ -20,6 +20,9 @@ yarn-error.log*
 CLAUDE.md
 docs/internal/
 
+# audio assets (ElevenLabs generated, local only)
+audio/
+
 # misc
 .DS_Store
 *.png

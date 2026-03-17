@@ -1,4 +1,4 @@
-# Statistical DeFi Intelligence Agent
+# SigmaGuard - Statistical DeFi Intelligence Agent
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-111_passing-brightgreen.svg)](#testing)
