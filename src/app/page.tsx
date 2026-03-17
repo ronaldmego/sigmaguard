@@ -23,18 +23,25 @@ interface WalletInfo {
   error?: string;
 }
 
+interface PortfolioSnapshot {
+  eth: number;
+  matic: number;
+  usdt: number;
+}
+
 export default function Home() {
   const [wallets, setWallets] = useState<WalletInfo[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [approvals, setApprovals] = useState<ApprovalWithTx[]>([]);
   const [rules, setRules] = useState<GovernanceRule[]>([]);
+  const [portfolioSnapshot, setPortfolioSnapshot] = useState<PortfolioSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [demoBannerVisible, setDemoBannerVisible] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const [walletRes, txRes, approvalsRes, rulesRes] = await Promise.all([
+      const [walletRes, txRes, approvalsRes, rulesRes, snapshotRes] = await Promise.all([
         fetch("/api/wallet")
           .then((r) => r.json())
           .catch(() => ({ wallets: [] })),
@@ -47,12 +54,16 @@ export default function Home() {
         fetch("/api/rules")
           .then((r) => r.json())
           .catch(() => ({ rules: [] })),
+        fetch("/api/agent/wallet-snapshot")
+          .then((r) => r.json())
+          .catch(() => ({ snapshot: null })),
       ]);
 
       setWallets(walletRes.wallets || []);
       setTransactions(txRes.transactions || []);
       setApprovals(approvalsRes.approvals || []);
       setRules(rulesRes.rules || []);
+      setPortfolioSnapshot(snapshotRes.snapshot ?? null);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data");
@@ -144,7 +155,7 @@ export default function Home() {
         {/* Top row: Wallet + Analytics */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="md:col-span-2">
-            <WalletOverview wallets={wallets} />
+            <WalletOverview wallets={wallets} portfolioSnapshot={portfolioSnapshot} />
           </div>
           <div className="md:col-span-3">
             <AnalyticsMini
