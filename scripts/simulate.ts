@@ -171,7 +171,7 @@ function buildGovernanceResult(isAnomaly: boolean, amount: number) {
     anomaly_result: anomalyResult,
     agent_interpretation: {
       explanation: isAnomaly
-        ? `This $${amount} rebalance transaction is 3.2 standard deviations above your average of $3.80 for autonomous agent operations. The market crash triggered a large portfolio rebalance. I recommend human review before execution.`
+        ? `This $${amount} de-risk transaction is 3.2 standard deviations above the $3.80 operating average. During a market crash, the agent prioritizes capital preservation (ETH→USDT) over mechanical rebalancing. Selling into a -18% crash would compound losses. Human approval required before execution.`
         : `Routine DCA transfer of $${amount.toFixed(2)} USDT to vault. Amount is within normal operating range (z-score: ${anomalyResult.z_score}). Auto-approved.`,
       recommendation: finalOutcome,
       confidence: isAnomaly ? 0.92 : 0.98,
@@ -339,7 +339,7 @@ async function main() {
           chain: "ethereum-sepolia",
           category: "agent_autonomous",
           description: isAnomaly
-            ? `Rebalance: $${rebalanceAmount} emergency rebalance (market crash, drift ${scenario.driftPct}%)`
+            ? `Capital preservation: de-risking $${rebalanceAmount} ETH→USDT during market crash. Portfolio rebalancing resumes post-recovery.`
             : `Rebalance: $${rebalanceAmount} portfolio rebalance (drift ${scenario.driftPct}%)`,
           status: txStatus,
           tx_hash: isAnomaly ? null : generateTxHash(),
