@@ -29,3 +29,4 @@ audio/
 !docs/**/*.png
 .playwright-mcp/
 audio-old/
+tsconfig.tsbuildinfo
