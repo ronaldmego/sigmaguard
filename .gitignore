@@ -28,3 +28,4 @@ audio/
 *.png
 !docs/**/*.png
 .playwright-mcp/
+audio-old/
