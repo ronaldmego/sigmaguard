@@ -90,7 +90,7 @@ export default function DashboardShell({ children, pendingCount = 0 }: Props) {
         {/* Logo */}
         <div className="mb-6">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600 flex items-center justify-center text-white text-xs font-bold">
-            P
+            S
           </div>
         </div>
 

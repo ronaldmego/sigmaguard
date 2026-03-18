@@ -26,7 +26,14 @@ export async function GET() {
       usdt: number;
     } | undefined;
 
-    return NextResponse.json({ snapshot: snapshot ?? null });
+    const prices = marketData?.prices as Record<string, { usd: number }> | undefined;
+    const ethPrice = prices?.ethereum?.usd ?? null;
+    const maticPrice = prices?.["matic-network"]?.usd ?? null;
+
+    return NextResponse.json({
+      snapshot: snapshot ?? null,
+      prices: ethPrice && maticPrice ? { eth: ethPrice, matic: maticPrice } : null,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal server error";
     console.error("GET /api/agent/wallet-snapshot error:", message);
