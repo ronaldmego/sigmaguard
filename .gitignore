@@ -30,3 +30,4 @@ audio/
 .playwright-mcp/
 audio-old/
 tsconfig.tsbuildinfo
+snapshot-approval.md
