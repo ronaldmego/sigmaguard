@@ -240,7 +240,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:4007
 
 ## Team
 
-Built by [Ronald Mego](https://ronaldmego.com) — Statistical Engineer & Founder @ [GalacticaIA](https://galacticaia.com). 15+ years in data governance, statistical analysis, AI, and enterprise systems.
+Built by [Ronald Mego](https://ronaldmego.com) — Statistical Engineer with 15+ years in data governance, statistical analysis, AI, and enterprise systems.
 
 ## License
 
