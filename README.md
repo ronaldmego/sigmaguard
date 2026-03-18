@@ -12,6 +12,25 @@
 
 ---
 
+## How It Works
+
+[![How It Works](docs/how-it-works.png)](http://100.64.216.28:4007/how-it-works)
+
+> *"The statistical model decides. The AI translates. The human approves. That's what makes it auditable."*
+
+Each transaction flows through a **4-layer governance pipeline**:
+
+| Layer | Role | Technology |
+|-------|------|------------|
+| **01 · Hard Rules** | Max $50/tx · Daily cap $100 · Blacklist · Frequency limits | Deterministic JSON policies |
+| **02 · Z-Score / IQR** | Six Sigma anomaly detection — Bessel-corrected, dynamic μ & σ | Statistics (no LLM) |
+| **03 · Claude AI** | Translates math to plain language — explains, never decides | Anthropic Claude |
+| **04 · You Decide** | Approve or reject flagged transactions · Full audit trail | Human-in-the-loop |
+
+Normal transactions auto-approve at layer 02 and execute instantly via WDK. Only anomalies escalate to layers 03 and 04.
+
+---
+
 ## The Problem
 
 AI agents are learning to spend money. But who watches the agent?
@@ -166,7 +185,7 @@ A transaction is flagged if **either** method detects it as anomalous. The dashb
 | No audit trail | Every decision logged with full context in Supabase |
 | Manual trigger required | Fully autonomous loop with human escalation |
 | Single chain | Multi-chain (Ethereum + Polygon) |
-| Dark terminal output | Premium light-mode dashboard with anomaly visualization |
+| No governance dashboard | Premium dashboard with real-time anomaly visualization |
 | Requires funded wallet to demo | One-click demo mode, zero terminal, no API keys |
 
 ## Project Structure
