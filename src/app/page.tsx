@@ -141,17 +141,31 @@ export default function Home() {
     <DemoBanner onVisibilityChange={setDemoBannerVisible} />
     <DashboardShell pendingCount={approvals.length}>
       <div className={`p-3 md:p-4 space-y-4 max-w-6xl mx-auto ${demoBannerVisible ? "pt-14 md:pt-16" : ""}`}>
-        {/* Header */}
-        <div id="overview" className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
+        {/* Header — single compact row */}
+        <div id="overview" className="flex items-center gap-4">
+          {/* Brand */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+              S
+            </div>
+            <span className="text-sm font-semibold text-gray-600 tracking-tight">SigmaGuard</span>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-8 bg-gray-200 flex-shrink-0" />
+
+          {/* Title + subtitle — centered */}
+          <div className="flex-1 text-center">
+            <h1 className="text-lg font-bold bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent leading-tight">
               Statistical DeFi Intelligence Agent
             </h1>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-[11px] text-gray-400 leading-tight">
               Z-score anomaly detection · 4-layer governance · autonomous execution
             </p>
           </div>
-          <div className="flex items-center gap-1.5 mr-24">
+
+          {/* Testnet */}
+          <div className="flex items-center gap-1.5 flex-shrink-0 mr-24">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-live-pulse" />
             <span className="text-xs text-gray-400">Testnet</span>
           </div>
