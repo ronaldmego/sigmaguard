@@ -59,12 +59,15 @@ export default function WalletOverview({
   const maticUsd = portfolioSnapshot && portfolioSnapshot.prices
     ? portfolioSnapshot.matic * portfolioSnapshot.prices.matic
     : null;
+  // Total portfolio (for display)
   const totalUsd = ethUsd !== null && maticUsd !== null && portfolioSnapshot
     ? ethUsd + maticUsd + portfolioSnapshot.usdt
     : null;
+  // Crypto-only allocation (ETH+MATIC, excludes USDT) — used for 60/40 target
+  const cryptoUsd = ethUsd !== null && maticUsd !== null ? ethUsd + maticUsd : null;
 
-  const ethPct = totalUsd && ethUsd !== null ? (ethUsd / totalUsd) * 100 : null;
-  const maticPct = totalUsd && maticUsd !== null ? (maticUsd / totalUsd) * 100 : null;
+  const ethPct = cryptoUsd && ethUsd !== null ? (ethUsd / cryptoUsd) * 100 : null;
+  const maticPct = cryptoUsd && maticUsd !== null ? (maticUsd / cryptoUsd) * 100 : null;
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3 h-full">
@@ -74,7 +77,12 @@ export default function WalletOverview({
       {portfolioSnapshot ? (
         <div className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <p className="text-xs text-gray-400">Portfolio</p>
+            <div>
+              <p className="text-xs text-gray-400">Portfolio</p>
+              {ethPct !== null && (
+                <p className="text-[10px] text-gray-300">crypto alloc %</p>
+              )}
+            </div>
             {totalUsd !== null && (
               <p className="text-sm font-bold text-gray-700">
                 ${totalUsd.toFixed(2)}
@@ -102,7 +110,7 @@ export default function WalletOverview({
             <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="absolute inset-y-0 left-0 rounded-full bg-brand-500 transition-all duration-500"
-                style={{ width: `${Math.min(ethPct ?? (portfolioSnapshot.eth * 100 / (portfolioSnapshot.eth + portfolioSnapshot.matic)), 100)}%` }}
+                style={{ width: `${Math.min(ethPct ?? 50, 100)}%` }}
               />
               {ethPct !== null && (
                 <div
@@ -136,7 +144,7 @@ export default function WalletOverview({
             <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="absolute inset-y-0 left-0 rounded-full bg-accent-500 transition-all duration-500"
-                style={{ width: `${Math.min(maticPct ?? (portfolioSnapshot.matic * 100 / (portfolioSnapshot.eth + portfolioSnapshot.matic)), 100)}%` }}
+                style={{ width: `${Math.min(maticPct ?? 50, 100)}%` }}
               />
               {maticPct !== null && (
                 <div
