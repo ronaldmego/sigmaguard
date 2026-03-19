@@ -8,7 +8,7 @@
 
 > Hackathon Galactica 2026 | Track: Autonomous DeFi Agent + Agent Wallets | Built with [Tether WDK](https://docs.wdk.tether.io)
 
-![Dashboard](docs/dashboard-overview.png)
+![Dashboard](docs/dashboard-gif.gif)
 
 ---
 
