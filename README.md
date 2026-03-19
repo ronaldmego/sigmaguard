@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/sigmaguard-logo-text.png" alt="SigmaGuard Logo" width="200" />
+</p>
+
 # SigmaGuard - Statistical DeFi Intelligence Agent
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
