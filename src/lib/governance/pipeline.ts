@@ -181,22 +181,39 @@ export async function executeApprovedTransaction(
   }
 }
 
+/**
+ * The single place where "Rules decide · AI explains · Human approves" is
+ * either true or a slogan.
+ *
+ * The AI's recommendation is allowed to move a transaction **towards** a human
+ * and never away from one. That is the whole distinction between explaining and
+ * deciding: escalating is declining to decide and handing the call up; ending
+ * the transaction is deciding, because nobody else ever sees it.
+ *
+ * So an agent recommendation of `reject` is honoured as its *severity*, not as
+ * its *verdict* — it becomes the strongest action the agent has, which is to
+ * summon a human. Only deterministic rules can terminate a transaction on their
+ * own, and they are the layer that can be read, tested and argued with.
+ */
 export function determineFinalOutcome(
   rulesPassed: boolean,
   isAnomaly: boolean,
   agentRecommendation: string
 ): FinalOutcome {
-  // Rules failed → always reject
+  // Layer 1 — deterministic rules are the only thing that can reject outright.
   if (!rulesPassed) return "reject";
 
-  // Anomaly detected → flag for human review
+  // Layer 2 — statistical anomaly: a human looks at it.
   if (isAnomaly) return "flag_for_review";
 
-  // Agent says flag → respect it (agent can escalate)
-  if (agentRecommendation === "flag_for_review") return "flag_for_review";
-  if (agentRecommendation === "reject") return "reject";
+  // Layer 3 — the model may escalate, and escalation tops out at "flag".
+  // A model asking to reject is a model asking for attention; it gets a human,
+  // not the last word.
+  if (agentRecommendation === "flag_for_review" || agentRecommendation === "reject") {
+    return "flag_for_review";
+  }
 
-  // All clear → auto approve
+  // Nothing objected → auto approve.
   return "auto_approve";
 }
 

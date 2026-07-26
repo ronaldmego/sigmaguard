@@ -80,8 +80,25 @@ describe("determineFinalOutcome", () => {
     expect(determineFinalOutcome(true, false, "flag_for_review")).toBe("flag_for_review");
   });
 
-  it("respects agent reject when no anomaly", () => {
-    expect(determineFinalOutcome(true, false, "reject")).toBe("reject");
+  // The claim on the box is "AI explains, never decides". These are the tests
+  // that make it true instead of decorative.
+  it("never lets the agent end a transaction — a reject recommendation summons a human", () => {
+    expect(determineFinalOutcome(true, false, "reject")).toBe("flag_for_review");
+  });
+
+  it("only deterministic rules can reject outright", () => {
+    const outcomes = ["auto_approve", "flag_for_review", "reject", "anything_else"].map(
+      (recommendation) => determineFinalOutcome(true, false, recommendation)
+    );
+    expect(outcomes).not.toContain("reject");
+    // ...and when the rules do fail, no agent recommendation can rescue it.
+    expect(determineFinalOutcome(false, false, "auto_approve")).toBe("reject");
+  });
+
+  it("never lets the agent de-escalate what an earlier layer raised", () => {
+    // An anomaly, or failed rules, cannot be talked down by the model.
+    expect(determineFinalOutcome(true, true, "auto_approve")).toBe("flag_for_review");
+    expect(determineFinalOutcome(false, true, "auto_approve")).toBe("reject");
   });
 
   it("auto-approves when all clear", () => {
@@ -117,7 +134,7 @@ describe("processTransaction", () => {
 
   it("auto-approves and calls WDK when all clear", async () => {
     setupMocksForOutcome(true, false, "auto_approve");
-    mockSendTransaction.mockResolvedValue({ hash: "0xabc123" });
+    mockSendTransaction.mockResolvedValue({ hash: "0xabc123", fee: "21000", chain: "ethereum-sepolia" });
 
     const { result } = await processTransaction(WALLET_ADDRESS, makeTransaction());
 
@@ -182,7 +199,7 @@ describe("processTransaction", () => {
 
   it("always records audit trail via insertAgentDecision", async () => {
     setupMocksForOutcome(true, false, "auto_approve");
-    mockSendTransaction.mockResolvedValue({ hash: "0x123" });
+    mockSendTransaction.mockResolvedValue({ hash: "0x123", fee: "21000", chain: "ethereum-sepolia" });
 
     await processTransaction(WALLET_ADDRESS, makeTransaction());
 
@@ -221,7 +238,7 @@ describe("executeApprovedTransaction", () => {
   const approvedTx = makeDbTransaction({ status: "approved" });
 
   it("executes via WDK and returns updated transaction", async () => {
-    mockSendTransaction.mockResolvedValue({ hash: "0xdef456" });
+    mockSendTransaction.mockResolvedValue({ hash: "0xdef456", fee: "21000", chain: "ethereum-sepolia" });
     mockUpdateTransactionStatus.mockResolvedValue({
       ...approvedTx,
       status: "executed",
