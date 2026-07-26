@@ -76,10 +76,10 @@ src/
 ├── types/                # Shared TypeScript types
 scripts/
 ├── seed.ts               # 84 transactions + 5 rules + 2 strategies
-└── simulate.ts           # 24h agent simulation (~5 min, 12 ticks)
+└── simulate.ts           # 24h agent simulation (~3 min, 12 ticks)
 tests/
-├── governance/           # 64 tests — 4-layer pipeline
-├── agent/                # 25 tests — autonomous agent
+├── governance/           # 78 tests — 4-layer pipeline
+├── agent/                # 49 tests — autonomous agent
 └── math/                 # 22 tests — statistical functions
 ```
 
