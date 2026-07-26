@@ -11,17 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simulated portfolio balances in Wallet Overview card during demo ([#21](https://github.com/ronaldmego/sigmaguard/issues/21)): ETH/MATIC/MATIC evolve per tick, USDT jumps +$35 at tick 10 when rebalance is approved — narrative matches the crash scenario
 - New API endpoint `/api/agent/wallet-snapshot` — reads latest `agent_run.market_data.wallet_snapshot`
 - Clear labels: "Portfolio" (simulated, live during demo) vs "Gas (testnet)" (real WDK on-chain)
-- WDK Lending: Aave V3 integration for idle funds yield strategy — `quoteSupply` + `supply` + `getAccountData` via `@tetherto/wdk-protocol-lending-aave-evm` ([#18](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/18))
+- WDK Lending: Aave V3 integration for idle funds yield strategy — `quoteSupply` + `supply` + `getAccountData` via `@tetherto/wdk-protocol-lending-aave-evm` ([#18](https://github.com/ronaldmego/sigmaguard/issues/18))
 - New "yield" strategy type: agent parks idle stablecoins in Aave V3 when balance exceeds threshold
 - Supply decisions go through full 4-layer governance pipeline
-- WDK Swap: Velora DEX integration for rebalance strategy — `quoteSwap` + `executeSwap` via `@tetherto/wdk-protocol-swap-velora-evm` ([#17](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/17))
+- WDK Swap: Velora DEX integration for rebalance strategy — `quoteSwap` + `executeSwap` via `@tetherto/wdk-protocol-swap-velora-evm` ([#17](https://github.com/ronaldmego/sigmaguard/issues/17))
 - Rebalance strategy now proposes DEX swaps (ETH/MATIC → USDT) instead of vault transfers, with real quote data
 - Swap decisions go through full 4-layer governance pipeline (rules → anomaly → LLM → human)
 - 24 new tests (135 total): swap wrapper, lending wrapper, yield strategy, token validation
 
 ### Changed
-- Migrate LLM from OpenAI GPT-5.2 to Anthropic Claude SDK ([#13](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/13))
-- Switch dashboard from dark to light theme — teal/gold/copper palette ([#12](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/12))
+- Migrate LLM from OpenAI GPT-5.2 to Anthropic Claude SDK ([#13](https://github.com/ronaldmego/sigmaguard/issues/13))
+- Switch dashboard from dark to light theme — teal/gold/copper palette ([#12](https://github.com/ronaldmego/sigmaguard/issues/12))
 
 ## [0.1.0] — 2026-03-08
 
@@ -29,21 +29,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Demo Mode with Stripe-style banner, Run Demo and Reset DB controls (zero-terminal judge workflow)
 - Anomaly detection scatter chart (recharts) with normal zone band and agent performance summary
 - Simulation script: 24h agent activity in ~5 min (12 ticks, market crash at tick 8)
-- Autonomous DeFi agent with DCA and rebalance strategies ([#6](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/6))
+- Autonomous DeFi agent with DCA and rebalance strategies ([#6](https://github.com/ronaldmego/sigmaguard/issues/6))
 - Agent loop, market data fetcher (CoinGecko), 4 API endpoints, 3 dashboard components
 - 2 new DB tables: `agent_strategies`, `agent_runs`
-- Dashboard UI with 11 components, realtime subscriptions, approval flow ([#4](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/4))
-- Unit tests for governance pipeline — 111 tests ([#5](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/5))
+- Dashboard UI with 11 components, realtime subscriptions, approval flow ([#4](https://github.com/ronaldmego/sigmaguard/issues/4))
+- Unit tests for governance pipeline — 111 tests ([#5](https://github.com/ronaldmego/sigmaguard/issues/5))
 - Governance pipeline: fixed rules, Z-score/IQR anomaly detection, LLM interpreter, human approval
-- RLS policies and permission hardening ([#2](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/2))
+- RLS policies and permission hardening ([#2](https://github.com/ronaldmego/sigmaguard/issues/2))
 - Supabase schema `pepa` with 6 tables
 - WDK wallet integration (Ethereum Sepolia + Polygon Amoy)
 - Seed data: 84 transactions, 5 governance rules, 2 strategies
 
 ### Fixed
-- Dashboard Total Spent not updating in realtime during simulation ([#8](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/8))
-- Approve fails on simulated transactions — WDK tried real blockchain execution ([#9](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/9))
-- Agent status: no visual feedback when simulation is running ([#10](https://github.com/ronaldmego/pepa-wallet-intelligence/issues/10))
+- Dashboard Total Spent not updating in realtime during simulation ([#8](https://github.com/ronaldmego/sigmaguard/issues/8))
+- Approve fails on simulated transactions — WDK tried real blockchain execution ([#9](https://github.com/ronaldmego/sigmaguard/issues/9))
+- Agent status: no visual feedback when simulation is running ([#10](https://github.com/ronaldmego/sigmaguard/issues/10))
 - Flaky Sepolia RPC replaced with reliable publicnode endpoint
 - Governance rules adjusted to match normalized seed amounts
 

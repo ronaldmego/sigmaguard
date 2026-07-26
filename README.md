@@ -175,7 +175,7 @@ A transaction is flagged if **either** method detects it as anomalous. The dashb
 
 | Component | Technology | Why |
 |-----------|-----------|-----|
-| Frontend | Next.js 14 (App Router) | SSR + API routes in one runtime |
+| Frontend | Next.js 15 (App Router) | SSR + API routes in one runtime |
 | Database | Supabase (PostgreSQL) | Realtime subscriptions + append-only audit trail |
 | Wallet | Tether WDK (4 modules) | Self-custodial wallets, DEX swap, Aave lending |
 | DEX | Velora (via WDK) | Token swaps for portfolio rebalancing |
@@ -201,7 +201,7 @@ A transaction is flagged if **either** method detects it as anomalous. The dashb
 
 ```
 src/
-├── app/                    # Next.js pages + 14 React components
+├── app/                    # Next.js pages + 17 React components
 │   ├── components/         # Dashboard, Agent Panel, Approval Queue, AgentVolume...
 │   └── api/                # REST endpoints (transactions, rules, agent)
 ├── lib/

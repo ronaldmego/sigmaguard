@@ -2,14 +2,14 @@
 
 ## Overview
 
-SigmaGuard is a Next.js 14 application with an autonomous DeFi agent governed by a 4-layer pipeline. All wallet operations go through governance before execution.
+SigmaGuard is a Next.js 15 application with an autonomous DeFi agent governed by a 4-layer pipeline. All wallet operations go through governance before execution.
 
 ```
 User / Agent
      │
      ▼
 ┌─────────────────────────────────────────────────┐
-│              Next.js 14 App Router               │
+│              Next.js 15 App Router               │
 │  ┌──────────────┐  ┌────────────────────────┐   │
 │  │  Dashboard   │  │      API Routes         │   │
 │  │  (React UI)  │  │  /api/transactions      │   │
