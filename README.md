@@ -18,7 +18,7 @@
 
 ## How It Works
 
-[![How It Works](docs/how-it-works.png)](http://100.64.216.28:4007/how-it-works)
+![How It Works](docs/how-it-works.png)
 
 > *"The statistical model decides. The AI translates. The human approves. That's what makes it auditable."*
 
@@ -209,16 +209,16 @@ src/
 scripts/
 ├── seed.ts                 # Demo data (84 txs + 5 rules + 2 strategies)
 ├── simulate.ts             # 24h agent simulation in ~3 minutes
-tests/                      # 111 tests (governance, agent, swap, lending, math)
+tests/                      # 143 tests (governance, agent, swap, lending, math)
 migrations/                 # SQL schema (6 tables + RLS)
 ```
 
 ## Testing
 
 ```bash
-npm test                    # All 111 tests
-npm run test:governance     # Governance pipeline (64 tests)
-npm run test:agent          # Autonomous agent + swap + lending (25 tests)
+npm test                    # All 143 tests
+npm run test:governance     # Governance pipeline (72 tests)
+npm run test:agent          # Autonomous agent + swap + lending (49 tests)
 npm run test:math           # Statistical functions (22 tests)
 ```
 
