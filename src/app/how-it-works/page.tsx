@@ -258,7 +258,7 @@ export default function HowItWorksPage() {
           {/* Stats */}
           <div className="flex items-center gap-8">
             {[
-              { value: "111", label: "tests passing" },
+              { value: "149", label: "tests passing" },
               { value: "4", label: "governance layers" },
               { value: "2σ", label: "anomaly threshold" },
               { value: "100%", label: "audit trail" },

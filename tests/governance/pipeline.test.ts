@@ -355,3 +355,134 @@ describe("buildIntent", () => {
     expect(buildIntent({ recipient: "0xa", amount: 1, action: "swap", swap }).swap).toEqual(swap);
   });
 });
+
+// ============================================================
+// El pipeline USA el despacho — no solo lo exporta
+// ============================================================
+
+describe("processTransaction dispatches by action", () => {
+  // Estos son los tests que faltaban. Los de executeIntent prueban la funcion
+  // aislada: revertir el cableado del pipeline los dejaba a todos en verde,
+  // con el defecto original de vuelta. Un test que no falla con el bug presente
+  // es peor que no tenerlo, asi que estos observan processTransaction y
+  // executeApprovedTransaction, que es donde el defecto vivia.
+  const baseTransaction = makeDbTransaction();
+
+  function approveEverything() {
+    mockInsertTransaction.mockResolvedValue(baseTransaction);
+    mockUpdateTransactionStatus.mockResolvedValue({ ...baseTransaction, status: "executed" });
+    mockInsertAgentDecision.mockResolvedValue({} as any);
+    mockInsertApprovalItem.mockResolvedValue({} as any);
+    mockEvaluateRules.mockResolvedValue(makeRulesResult({ passed: true }));
+    mockDetectAnomaly.mockResolvedValue(makeAnomalyResult({ is_anomaly: false }));
+    mockInterpretTransaction.mockResolvedValue(
+      makeAgentInterpretation({ recommendation: "auto_approve" })
+    );
+  }
+
+  it("an auto-approved swap reaches the DEX, never a native transfer", async () => {
+    approveEverything();
+    mockExecuteSwap.mockResolvedValue({
+      hash: "0xswap", fee: "1", tokenInAmount: "1000", tokenOutAmount: "2000", chain: CHAIN,
+    });
+
+    await processTransaction(WALLET_ADDRESS, {
+      ...makeTransaction(),
+      action: "swap",
+      swap: { tokenIn: "0xIn", tokenOut: "0xOut", tokenInAmountWei: "1000" },
+    });
+
+    expect(mockExecuteSwap).toHaveBeenCalledTimes(1);
+    expect(mockSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("an auto-approved supply reaches the lending protocol", async () => {
+    approveEverything();
+    mockSupply.mockResolvedValue({
+      hash: "0xsupply", fee: "1", token: "0xTok", amount: "2500", protocol: "aave-v3", chain: CHAIN,
+    });
+
+    await processTransaction(WALLET_ADDRESS, {
+      ...makeTransaction(),
+      action: "supply",
+      supply: { token: "0xTok", amountWei: "2500" },
+    });
+
+    expect(mockSupply).toHaveBeenCalledTimes(1);
+    expect(mockSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("records the intent in the audit trail so a later approval can honour it", async () => {
+    approveEverything();
+    mockExecuteSwap.mockResolvedValue({
+      hash: "0xswap", fee: "1", tokenInAmount: "1000", tokenOutAmount: "2000", chain: CHAIN,
+    });
+
+    const { result } = await processTransaction(WALLET_ADDRESS, {
+      ...makeTransaction(),
+      action: "swap",
+      swap: { tokenIn: "0xIn", tokenOut: "0xOut", tokenInAmountWei: "1000" },
+    });
+
+    expect(result.intent).toEqual({
+      action: "swap",
+      swap: { tokenIn: "0xIn", tokenOut: "0xOut", tokenInAmountWei: "1000" },
+      supply: undefined,
+    });
+  });
+
+  it("a swap approved by a human hours later still executes as a swap", async () => {
+    mockUpdateTransactionStatus.mockResolvedValue({ ...baseTransaction, status: "executed" });
+    mockExecuteSwap.mockResolvedValue({
+      hash: "0xswap", fee: "1", tokenInAmount: "1000", tokenOutAmount: "2000", chain: CHAIN,
+    });
+
+    await executeApprovedTransaction({
+      ...baseTransaction,
+      status: "pending",
+      governance_result: {
+        ...(baseTransaction.governance_result as any),
+        intent: {
+          action: "swap",
+          swap: { tokenIn: "0xIn", tokenOut: "0xOut", tokenInAmountWei: "1000" },
+        },
+      },
+    } as any);
+
+    expect(mockExecuteSwap).toHaveBeenCalledTimes(1);
+    expect(mockSendTransaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("legacy rows written before execution intents", () => {
+  it("refuses to execute an old agent swap as a native transfer", async () => {
+    // Su `recipient` es el contrato del token de salida: ejecutarlo como
+    // transferencia reproduce el defecto exacto que este PR arregla.
+    mockUpdateTransactionStatus.mockResolvedValue({} as any);
+
+    await expect(
+      executeApprovedTransaction({
+        ...makeDbTransaction(),
+        category: "agent_swap",
+        recipient: "0xOutputTokenContract",
+        governance_result: null,
+      } as any)
+    ).rejects.toThrow(/predates execution intents/);
+
+    expect(mockSendTransaction).not.toHaveBeenCalled();
+    expect(mockExecuteSwap).not.toHaveBeenCalled();
+  });
+
+  it("still executes an ordinary old transfer, which was never ambiguous", async () => {
+    mockSendTransaction.mockResolvedValue({ hash: "0xok", fee: "21000", chain: CHAIN });
+    mockUpdateTransactionStatus.mockResolvedValue({} as any);
+
+    await executeApprovedTransaction({
+      ...makeDbTransaction(),
+      category: "groceries",
+      governance_result: null,
+    } as any);
+
+    expect(mockSendTransaction).toHaveBeenCalledTimes(1);
+  });
+});

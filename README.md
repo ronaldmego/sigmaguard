@@ -5,7 +5,7 @@
 # SigmaGuard - Statistical DeFi Intelligence Agent
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-111_passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-149_passing-brightgreen.svg)](#testing)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
 
 **Autonomous DeFi agent with Six Sigma anomaly detection and 4-layer governance pipeline — because AI agents that handle money need statistics, not vibes.**
@@ -209,15 +209,15 @@ src/
 scripts/
 ├── seed.ts                 # Demo data (84 txs + 5 rules + 2 strategies)
 ├── simulate.ts             # 24h agent simulation in ~3 minutes
-tests/                      # 143 tests (governance, agent, swap, lending, math)
+tests/                      # 149 tests (governance, agent, swap, lending, math)
 migrations/                 # SQL schema (6 tables + RLS)
 ```
 
 ## Testing
 
 ```bash
-npm test                    # All 143 tests
-npm run test:governance     # Governance pipeline (72 tests)
+npm test                    # All 149 tests
+npm run test:governance     # Governance pipeline (78 tests)
 npm run test:agent          # Autonomous agent + swap + lending (49 tests)
 npm run test:math           # Statistical functions (22 tests)
 ```
@@ -244,7 +244,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:4007
 
 ## Team
 
-Built by [Ronald Mego](https://ronaldmego.com) — Statistical Engineer with 15+ years in data governance, statistical analysis, AI, and enterprise systems.
+Built by [Ronald Mego](https://ronaldmego.com) — Statistical Engineer working across data governance, statistical analysis, AI and enterprise systems.
 
 ## License
 

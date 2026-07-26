@@ -171,11 +171,25 @@ export async function executeApprovedTransaction(
   try {
     // The intent was recorded when governance ran, so a swap a human approves
     // an hour later still executes as a swap.
+    //
+    // Rows created before intents existed carry no intent — and for an
+    // agent-initiated swap their `recipient` is the *output token's contract*,
+    // the very shape that made a "swap" send native currency into an ERC-20.
+    // Executing those as a transfer would reproduce the defect on exactly the
+    // transactions that predate the fix, so they are refused instead.
+    const intent = transaction.governance_result?.intent;
+    if (!intent && isAgentProtocolTransaction(transaction)) {
+      throw new Error(
+        `transaction ${transaction.id} predates execution intents and its recipient ` +
+          `carries the old semantics — refusing to execute it as a native transfer`
+      );
+    }
+
     const result = await executeIntent(
       transaction.chain,
       transaction.recipient,
       transaction.amount,
-      transaction.governance_result?.intent
+      intent
     );
     return await updateTransactionStatus(transaction.id, "executed", result.hash);
   } catch (err) {
@@ -247,6 +261,18 @@ function parseAmountToWei(amount: number): bigint {
   // Assumes amount is in whole units (e.g., dollars/tokens)
   // Convert to wei (18 decimals) for native token transfers
   return BigInt(Math.round(amount * 1e18));
+}
+
+/**
+ * Was this row created by the agent to act through a protocol (swap / supply)?
+ *
+ * Read off `category`, which the agent has always set, so it works on rows
+ * written before execution intents existed — which is the whole point.
+ */
+export function isAgentProtocolTransaction(transaction: {
+  category: string | null;
+}): boolean {
+  return transaction.category === "agent_swap" || transaction.category === "agent_lending";
 }
 
 export function buildIntent(input: TransactionInput): ExecutionIntent {
