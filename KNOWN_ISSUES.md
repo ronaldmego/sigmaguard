@@ -1,5 +1,41 @@
 # Known Issues
 
+> This is an exhibition project from Hackathon Galactica 2026, kept as a reference
+> implementation. The list below is deliberately honest rather than short: knowing
+> where a governance demo is thin is part of what makes it worth reading.
+
+## Deferred — known, not scheduled
+
+Found by an adversarial review of the governance fix (2026-07-26) and recorded here
+rather than left as open issues, since none of them affect the pattern the project
+exists to demonstrate.
+
+**The agent loop has no tests.** `src/lib/agent/autonomous.ts` is where a swap's
+parameters are born, and it is the file where the original defect lived (it passed
+the output token's contract address as the transfer recipient). The *consumer* of
+those parameters is now locked down by tests — reintroducing the defect in the
+pipeline fails four of them — but the *producer* is not. Restoring the pre-fix shape
+in `autonomous.ts` still passes the whole suite. It would take a test of
+`runAgentCycle` asserting that the call to `processTransaction` carries
+`action: "swap"` and a self-directed recipient.
+
+**Only the agent can create a non-transfer transaction.** The Zod schema in
+`src/app/api/transactions/route.ts` does not accept `action` / `swap` / `supply`,
+and Zod strips unknown keys — so the HTTP API can only create transfers. Not a hole
+in the guard, but it leaves `autonomous.ts` as the single unobserved producer above.
+
+**`npm run db:setup` only works on the author's machine.** `scripts/db-setup.ts`
+hardcodes an absolute path to a `.env` outside the repo. Anyone else following the
+Quick Start hits the `catch` and a warning. It should read an environment variable.
+
+**Amounts mix units in the transfer path.** `parseAmountToWei()` multiplies by 1e18
+and sends the result as a *native* value, while rules reason in dollars and
+`currency` is free text. It is coherent today only because the seed uses ETH; with a
+stablecoin, a rule approving "$50" would authorise 50 native units — a different
+amount of money. Pre-existing, and the reason the type definitions now say plainly
+that "amount to recipient" only describes a native transfer.
+
+
 ## Dependency Vulnerabilities
 
 **Status:** mostly upstream — re-derive before quoting, do not trust this snapshot.

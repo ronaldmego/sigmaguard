@@ -12,6 +12,11 @@
 
 > Hackathon Galactica 2026 | Track: Autonomous DeFi Agent + Agent Wallets | Built with [Tether WDK](https://docs.wdk.tether.io)
 
+> **Exhibition project, not a product.** Built for a hackathon and kept as a public reference
+> implementation of governed AI. It runs on testnet, it is not audited, it is not maintained for
+> production use, and it still has rough edges — the honest ones are listed in
+> [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md). Read it for the governance pattern, not to run it with real funds.
+
 ![Dashboard](docs/dashboard-gif.gif)
 
 ---
