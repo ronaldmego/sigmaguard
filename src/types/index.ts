@@ -21,6 +21,41 @@ export interface Transaction {
   updated_at: string;
 }
 
+/**
+ * What a governed transaction actually does on-chain.
+ *
+ * This exists because "amount to recipient" only describes a native transfer.
+ * A swap and a supply move value too, but through a protocol and with their own
+ * parameters — and a system that models them all as transfers will happily send
+ * native currency to a token contract.
+ */
+export type TransactionAction = "transfer" | "swap" | "supply";
+
+/** Amounts are wei as decimal strings: they cross JSON and the database. */
+export interface SwapExecution {
+  tokenIn: string;
+  tokenOut: string;
+  tokenInAmountWei: string;
+  maxFeeWei?: string;
+}
+
+export interface SupplyExecution {
+  token: string;
+  amountWei: string;
+  protocol?: string;
+}
+
+/**
+ * The intended on-chain action, carried through governance and recorded in the
+ * audit trail — so a transaction a human approves days later executes as what
+ * it was, not as whatever the executor assumes by default.
+ */
+export interface ExecutionIntent {
+  action: TransactionAction;
+  swap?: SwapExecution;
+  supply?: SupplyExecution;
+}
+
 export interface TransactionInput {
   recipient: string;
   amount: number;
@@ -29,6 +64,10 @@ export interface TransactionInput {
   category?: string;
   merchant?: string;
   description?: string;
+  /** Defaults to "transfer" when absent, which is what every caller meant before. */
+  action?: TransactionAction;
+  swap?: SwapExecution;
+  supply?: SupplyExecution;
 }
 
 // ============================================================
@@ -121,6 +160,13 @@ export interface GovernancePipelineResult {
   agent_interpretation: AgentInterpretation;
   final_outcome: FinalOutcome;
   timestamp: string;
+  /**
+   * What the transaction was meant to do on-chain. Recorded here because the
+   * transactions table has no column for it, and because the audit trail is the
+   * right home for intent: it is what lets a human approving a flagged swap
+   * execute a swap rather than a transfer.
+   */
+  intent?: ExecutionIntent;
 }
 
 // ============================================================

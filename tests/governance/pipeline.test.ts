@@ -3,6 +3,8 @@ import {
   processTransaction,
   executeApprovedTransaction,
   determineFinalOutcome,
+  executeIntent,
+  buildIntent,
 } from "@/lib/governance/pipeline";
 import {
   WALLET_ADDRESS,
@@ -35,6 +37,8 @@ vi.mock("@/lib/governance/agent", () => ({
 
 vi.mock("@/lib/wdk", () => ({
   sendTransaction: vi.fn(),
+  executeSwap: vi.fn(),
+  supply: vi.fn(),
 }));
 
 import {
@@ -46,7 +50,7 @@ import {
 import { evaluateRules } from "@/lib/governance/rules";
 import { detectAnomaly } from "@/lib/governance/anomaly";
 import { interpretTransaction } from "@/lib/governance/agent";
-import { sendTransaction } from "@/lib/wdk";
+import { sendTransaction, executeSwap, supply } from "@/lib/wdk";
 
 const mockInsertTransaction = vi.mocked(insertTransaction);
 const mockUpdateTransactionStatus = vi.mocked(updateTransactionStatus);
@@ -56,6 +60,9 @@ const mockEvaluateRules = vi.mocked(evaluateRules);
 const mockDetectAnomaly = vi.mocked(detectAnomaly);
 const mockInterpretTransaction = vi.mocked(interpretTransaction);
 const mockSendTransaction = vi.mocked(sendTransaction);
+const mockExecuteSwap = vi.mocked(executeSwap);
+const mockSupply = vi.mocked(supply);
+const CHAIN = "ethereum-sepolia";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -267,5 +274,84 @@ describe("executeApprovedTransaction", () => {
       approvedTx.id,
       "failed"
     );
+  });
+});
+
+// ============================================================
+// executeIntent — the transaction executes as what it IS
+// ============================================================
+
+describe("executeIntent", () => {
+  // Before the dispatch existed, every approved transaction became a native
+  // transfer to `recipient` — and for an agent swap that recipient was the
+  // output token's contract address. The swap "succeeded" and the funds were
+  // stranded. These tests exist so that cannot come back.
+
+  it("routes a swap to the DEX, not to a native transfer", async () => {
+    mockExecuteSwap.mockResolvedValue({ hash: "0xswap", fee: "1", tokenInAmount: "1", tokenOutAmount: "2", chain: CHAIN });
+
+    const result = await executeIntent(CHAIN, WALLET_ADDRESS, 10, {
+      action: "swap",
+      swap: { tokenIn: "0xIn", tokenOut: "0xOut", tokenInAmountWei: "1000" },
+    });
+
+    expect(result.hash).toBe("0xswap");
+    expect(mockExecuteSwap).toHaveBeenCalledWith(
+      expect.objectContaining({ tokenIn: "0xIn", tokenOut: "0xOut", tokenInAmount: 1000n })
+    );
+    expect(mockSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("routes a supply to the lending protocol, not to a native transfer", async () => {
+    mockSupply.mockResolvedValue({ hash: "0xsupply", fee: "1", token: "0xTok", amount: "2500", protocol: "aave-v3", chain: CHAIN });
+
+    const result = await executeIntent(CHAIN, WALLET_ADDRESS, 10, {
+      action: "supply",
+      supply: { token: "0xTok", amountWei: "2500" },
+    });
+
+    expect(result.hash).toBe("0xsupply");
+    expect(mockSupply).toHaveBeenCalledWith(
+      expect.objectContaining({ token: "0xTok", amount: 2500n })
+    );
+    expect(mockSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("still sends a plain transfer, including when no intent was recorded", async () => {
+    mockSendTransaction.mockResolvedValue({ hash: "0xnative", fee: "21000", chain: CHAIN });
+
+    await executeIntent(CHAIN, "0xRecipient", 1, { action: "transfer" });
+    await executeIntent(CHAIN, "0xRecipient", 1, undefined); // legacy rows
+
+    expect(mockSendTransaction).toHaveBeenCalledTimes(2);
+    expect(mockExecuteSwap).not.toHaveBeenCalled();
+    expect(mockSupply).not.toHaveBeenCalled();
+  });
+
+  it("refuses to fall back to a transfer when the action's parameters are missing", async () => {
+    // The whole defect in one assertion: a quiet native transfer here is how
+    // funds were sent to a token contract in the first place.
+    await expect(executeIntent(CHAIN, WALLET_ADDRESS, 10, { action: "swap" })).rejects.toThrow(
+      /refusing to fall back/
+    );
+    await expect(executeIntent(CHAIN, WALLET_ADDRESS, 10, { action: "supply" })).rejects.toThrow(
+      /refusing to fall back/
+    );
+    expect(mockSendTransaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("buildIntent", () => {
+  it("defaults to a transfer, so existing callers are unchanged", () => {
+    expect(buildIntent({ recipient: "0xa", amount: 1 })).toEqual({
+      action: "transfer",
+      swap: undefined,
+      supply: undefined,
+    });
+  });
+
+  it("carries the swap parameters into the audit trail", () => {
+    const swap = { tokenIn: "0xIn", tokenOut: "0xOut", tokenInAmountWei: "5" };
+    expect(buildIntent({ recipient: "0xa", amount: 1, action: "swap", swap }).swap).toEqual(swap);
   });
 });

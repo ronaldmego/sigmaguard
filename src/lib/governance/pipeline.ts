@@ -3,6 +3,7 @@ import type {
   GovernancePipelineResult,
   FinalOutcome,
   Transaction,
+  ExecutionIntent,
 } from "@/types";
 import {
   insertTransaction,
@@ -13,7 +14,7 @@ import {
 import { evaluateRules } from "./rules";
 import { detectAnomaly } from "./anomaly";
 import { interpretTransaction } from "./agent";
-import { sendTransaction as wdkSend } from "@/lib/wdk";
+import { sendTransaction as wdkSend, executeSwap, supply as wdkSupply } from "@/lib/wdk";
 
 /**
  * processTransaction — the heart of the PEPA governance system.
@@ -61,6 +62,7 @@ export async function processTransaction(
       agent_interpretation: agentResult,
       final_outcome: finalOutcome,
       timestamp: new Date().toISOString(),
+      intent: buildIntent(input),
     };
 
     // Record agent decision (audit trail)
@@ -84,11 +86,11 @@ export async function processTransaction(
         // Execute transaction via WDK
         let txHash: string | undefined;
         try {
-          const amountWei = parseAmountToWei(input.amount);
-          const result = await wdkSend(
+          const result = await executeIntent(
             input.chain ?? "ethereum-sepolia",
             input.recipient,
-            amountWei
+            input.amount,
+            pipelineResult.intent
           );
           txHash = result.hash;
           transaction = await updateTransactionStatus(
@@ -167,11 +169,13 @@ export async function executeApprovedTransaction(
   }
 
   try {
-    const amountWei = parseAmountToWei(transaction.amount);
-    const result = await wdkSend(
+    // The intent was recorded when governance ran, so a swap a human approves
+    // an hour later still executes as a swap.
+    const result = await executeIntent(
       transaction.chain,
       transaction.recipient,
-      amountWei
+      transaction.amount,
+      transaction.governance_result?.intent
     );
     return await updateTransactionStatus(transaction.id, "executed", result.hash);
   } catch (err) {
@@ -243,4 +247,60 @@ function parseAmountToWei(amount: number): bigint {
   // Assumes amount is in whole units (e.g., dollars/tokens)
   // Convert to wei (18 decimals) for native token transfers
   return BigInt(Math.round(amount * 1e18));
+}
+
+export function buildIntent(input: TransactionInput): ExecutionIntent {
+  return { action: input.action ?? "transfer", swap: input.swap, supply: input.supply };
+}
+
+/**
+ * Execute an approved transaction as **the action it actually is**.
+ *
+ * Before this dispatch existed, every approved transaction became a native
+ * transfer to `recipient`. For an agent-initiated swap that `recipient` was the
+ * *output token's contract address*, so the "swap" was a native transfer into an
+ * ERC-20 contract — funds stranded, and a governance report saying the swap
+ * executed. On a testnet that is invisible; the README claim was the dangerous
+ * part.
+ *
+ * The missing parameters case **throws**. Falling back to a transfer is what
+ * produced the original defect, and a loud failure beats a quiet wrong action
+ * when the subject is moving money.
+ */
+export async function executeIntent(
+  chain: string,
+  recipient: string,
+  amount: number,
+  intent: ExecutionIntent | undefined
+): Promise<{ hash: string }> {
+  const action = intent?.action ?? "transfer";
+
+  if (action === "swap") {
+    if (!intent?.swap) {
+      throw new Error("swap transaction has no swap parameters — refusing to fall back to a transfer");
+    }
+    const result = await executeSwap({
+      chain,
+      tokenIn: intent.swap.tokenIn,
+      tokenOut: intent.swap.tokenOut,
+      tokenInAmount: BigInt(intent.swap.tokenInAmountWei),
+      ...(intent.swap.maxFeeWei ? { maxFee: BigInt(intent.swap.maxFeeWei) } : {}),
+    });
+    return { hash: result.hash };
+  }
+
+  if (action === "supply") {
+    if (!intent?.supply) {
+      throw new Error("supply transaction has no supply parameters — refusing to fall back to a transfer");
+    }
+    const result = await wdkSupply({
+      chain,
+      token: intent.supply.token,
+      amount: BigInt(intent.supply.amountWei),
+    });
+    return { hash: result.hash };
+  }
+
+  const result = await wdkSend(chain, recipient, parseAmountToWei(amount));
+  return { hash: result.hash };
 }
