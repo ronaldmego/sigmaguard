@@ -49,7 +49,7 @@ Click **"Reset DB"** in the banner. This seeds fresh data:
 - 2 agent strategies (DCA + Rebalance)
 
 ### Step 4: Run the Demo
-Click **"Run Demo"**. This launches a 12-tick simulation (~5 minutes) that compresses 24 hours of agent activity:
+Click **"Run Demo"**. This launches a 12-tick simulation (~3 minutes) that compresses 24 hours of agent activity:
 
 | Tick | Time | What happens |
 |------|------|-------------|
@@ -155,10 +155,10 @@ Complementary method using percentiles (Q1, Q3) to identify outliers without ass
 
 | Problem | Solution |
 |---------|----------|
-| Dashboard shows "Loading..." forever | Check if dev server is running: `pm2 status pepa-dev` |
+| Dashboard shows "Loading..." forever | Check the dev server is running (`npm run dev`) and reachable on the port it printed |
 | Demo doesn't start | Click "Reset DB" first, then "Run Demo" |
-| Approval Queue is empty | Run the demo — anomaly appears at tick 8 (~3 min in) |
+| Approval Queue is empty | Run the demo — anomaly appears at tick 8 (~2 min in) |
 | "Start Agent" is disabled | You're in Demo Mode. Switch to Production or use "Run Demo" |
 | Portfolio shows "Run demo to see live balances" | Normal before first simulation. Click Run Demo and balances will update each tick |
 | Gas balance shows 0 MATIC | Expected — Polygon Amoy testnet wallet has no faucet funds. Doesn't affect demo |
-| Server died | `pm2 restart pepa-dev` or `pm2 start "npx next dev -p 4007 -H 100.64.216.28" --name pepa-dev` |
+| Server died | Restart it with `npm run dev` (or `npm run build && npm start` for a production build) |

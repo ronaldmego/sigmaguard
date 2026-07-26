@@ -3,6 +3,7 @@ import type {
   GovernancePipelineResult,
   FinalOutcome,
   Transaction,
+  ExecutionIntent,
 } from "@/types";
 import {
   insertTransaction,
@@ -13,7 +14,7 @@ import {
 import { evaluateRules } from "./rules";
 import { detectAnomaly } from "./anomaly";
 import { interpretTransaction } from "./agent";
-import { sendTransaction as wdkSend } from "@/lib/wdk";
+import { sendTransaction as wdkSend, executeSwap, supply as wdkSupply } from "@/lib/wdk";
 
 /**
  * processTransaction — the heart of the PEPA governance system.
@@ -61,6 +62,7 @@ export async function processTransaction(
       agent_interpretation: agentResult,
       final_outcome: finalOutcome,
       timestamp: new Date().toISOString(),
+      intent: buildIntent(input),
     };
 
     // Record agent decision (audit trail)
@@ -84,11 +86,11 @@ export async function processTransaction(
         // Execute transaction via WDK
         let txHash: string | undefined;
         try {
-          const amountWei = parseAmountToWei(input.amount);
-          const result = await wdkSend(
+          const result = await executeIntent(
             input.chain ?? "ethereum-sepolia",
             input.recipient,
-            amountWei
+            input.amount,
+            pipelineResult.intent
           );
           txHash = result.hash;
           transaction = await updateTransactionStatus(
@@ -167,11 +169,27 @@ export async function executeApprovedTransaction(
   }
 
   try {
-    const amountWei = parseAmountToWei(transaction.amount);
-    const result = await wdkSend(
+    // The intent was recorded when governance ran, so a swap a human approves
+    // an hour later still executes as a swap.
+    //
+    // Rows created before intents existed carry no intent — and for an
+    // agent-initiated swap their `recipient` is the *output token's contract*,
+    // the very shape that made a "swap" send native currency into an ERC-20.
+    // Executing those as a transfer would reproduce the defect on exactly the
+    // transactions that predate the fix, so they are refused instead.
+    const intent = transaction.governance_result?.intent;
+    if (!intent && isAgentProtocolTransaction(transaction)) {
+      throw new Error(
+        `transaction ${transaction.id} predates execution intents and its recipient ` +
+          `carries the old semantics — refusing to execute it as a native transfer`
+      );
+    }
+
+    const result = await executeIntent(
       transaction.chain,
       transaction.recipient,
-      amountWei
+      transaction.amount,
+      intent
     );
     return await updateTransactionStatus(transaction.id, "executed", result.hash);
   } catch (err) {
@@ -181,22 +199,39 @@ export async function executeApprovedTransaction(
   }
 }
 
+/**
+ * The single place where "Rules decide · AI explains · Human approves" is
+ * either true or a slogan.
+ *
+ * The AI's recommendation is allowed to move a transaction **towards** a human
+ * and never away from one. That is the whole distinction between explaining and
+ * deciding: escalating is declining to decide and handing the call up; ending
+ * the transaction is deciding, because nobody else ever sees it.
+ *
+ * So an agent recommendation of `reject` is honoured as its *severity*, not as
+ * its *verdict* — it becomes the strongest action the agent has, which is to
+ * summon a human. Only deterministic rules can terminate a transaction on their
+ * own, and they are the layer that can be read, tested and argued with.
+ */
 export function determineFinalOutcome(
   rulesPassed: boolean,
   isAnomaly: boolean,
   agentRecommendation: string
 ): FinalOutcome {
-  // Rules failed → always reject
+  // Layer 1 — deterministic rules are the only thing that can reject outright.
   if (!rulesPassed) return "reject";
 
-  // Anomaly detected → flag for human review
+  // Layer 2 — statistical anomaly: a human looks at it.
   if (isAnomaly) return "flag_for_review";
 
-  // Agent says flag → respect it (agent can escalate)
-  if (agentRecommendation === "flag_for_review") return "flag_for_review";
-  if (agentRecommendation === "reject") return "reject";
+  // Layer 3 — the model may escalate, and escalation tops out at "flag".
+  // A model asking to reject is a model asking for attention; it gets a human,
+  // not the last word.
+  if (agentRecommendation === "flag_for_review" || agentRecommendation === "reject") {
+    return "flag_for_review";
+  }
 
-  // All clear → auto approve
+  // Nothing objected → auto approve.
   return "auto_approve";
 }
 
@@ -226,4 +261,72 @@ function parseAmountToWei(amount: number): bigint {
   // Assumes amount is in whole units (e.g., dollars/tokens)
   // Convert to wei (18 decimals) for native token transfers
   return BigInt(Math.round(amount * 1e18));
+}
+
+/**
+ * Was this row created by the agent to act through a protocol (swap / supply)?
+ *
+ * Read off `category`, which the agent has always set, so it works on rows
+ * written before execution intents existed — which is the whole point.
+ */
+export function isAgentProtocolTransaction(transaction: {
+  category: string | null;
+}): boolean {
+  return transaction.category === "agent_swap" || transaction.category === "agent_lending";
+}
+
+export function buildIntent(input: TransactionInput): ExecutionIntent {
+  return { action: input.action ?? "transfer", swap: input.swap, supply: input.supply };
+}
+
+/**
+ * Execute an approved transaction as **the action it actually is**.
+ *
+ * Before this dispatch existed, every approved transaction became a native
+ * transfer to `recipient`. For an agent-initiated swap that `recipient` was the
+ * *output token's contract address*, so the "swap" was a native transfer into an
+ * ERC-20 contract — funds stranded, and a governance report saying the swap
+ * executed. On a testnet that is invisible; the README claim was the dangerous
+ * part.
+ *
+ * The missing parameters case **throws**. Falling back to a transfer is what
+ * produced the original defect, and a loud failure beats a quiet wrong action
+ * when the subject is moving money.
+ */
+export async function executeIntent(
+  chain: string,
+  recipient: string,
+  amount: number,
+  intent: ExecutionIntent | undefined
+): Promise<{ hash: string }> {
+  const action = intent?.action ?? "transfer";
+
+  if (action === "swap") {
+    if (!intent?.swap) {
+      throw new Error("swap transaction has no swap parameters — refusing to fall back to a transfer");
+    }
+    const result = await executeSwap({
+      chain,
+      tokenIn: intent.swap.tokenIn,
+      tokenOut: intent.swap.tokenOut,
+      tokenInAmount: BigInt(intent.swap.tokenInAmountWei),
+      ...(intent.swap.maxFeeWei ? { maxFee: BigInt(intent.swap.maxFeeWei) } : {}),
+    });
+    return { hash: result.hash };
+  }
+
+  if (action === "supply") {
+    if (!intent?.supply) {
+      throw new Error("supply transaction has no supply parameters — refusing to fall back to a transfer");
+    }
+    const result = await wdkSupply({
+      chain,
+      token: intent.supply.token,
+      amount: BigInt(intent.supply.amountWei),
+    });
+    return { hash: result.hash };
+  }
+
+  const result = await wdkSend(chain, recipient, parseAmountToWei(amount));
+  return { hash: result.hash };
 }

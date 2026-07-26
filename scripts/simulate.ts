@@ -236,7 +236,9 @@ async function main() {
   const startTime = Date.now();
 
   console.log("");
-  console.log("PEPA Agent Simulation — 24h in 5 minutes");
+  console.log(
+    `SigmaGuard Agent Simulation — 24h in ~${Math.round(TOTAL_TICKS * TICK_DELAY_MS / 60000)} minutes`
+  );
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log(`  Wallet:     ${walletAddress}`);
   console.log(`  DCA ID:     ${dcaStrategy.id}`);

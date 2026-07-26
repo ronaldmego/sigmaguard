@@ -168,18 +168,28 @@ async function runAgentCycle(): Promise<void> {
               quoteInfo = " (quote unavailable — testnet liquidity)";
             }
 
-            // Submit swap through governance pipeline as a transaction
+            // Submit swap through governance pipeline as a transaction.
+            // A swap is self-directed — the output tokens come back to this
+            // wallet — so the wallet is the honest recipient. Passing the output
+            // token's contract here (as this did) made the executor send native
+            // currency into an ERC-20 contract.
             const walletAddress = await getWalletAddress(result.swap.chain);
             const { transaction, result: govResult } = await processTransaction(
               walletAddress,
               {
-                recipient: result.swap.tokenOut, // token contract as recipient
+                recipient: walletAddress,
                 amount: result.swap.amountIn,
                 currency: result.swap.tokenInSymbol,
                 chain: result.swap.chain,
                 category: "agent_swap",
                 merchant: `pepa_agent_swap_velora`,
                 description: `${result.reason}${quoteInfo}`,
+                action: "swap",
+                swap: {
+                  tokenIn: result.swap.tokenIn,
+                  tokenOut: result.swap.tokenOut,
+                  tokenInAmountWei: amountWei.toString(),
+                },
               }
             );
 
@@ -221,18 +231,27 @@ async function runAgentCycle(): Promise<void> {
               quoteInfo = " (quote unavailable — testnet)";
             }
 
-            // Submit supply through governance pipeline as a transaction
+            // Submit supply through governance pipeline as a transaction.
+            // Supplying is self-directed too: the interest-bearing tokens are
+            // minted back to this wallet, so it is the honest recipient. The
+            // counterparty is captured in `merchant`, where the rules can see it.
             const walletAddress = await getWalletAddress(result.supply.chain);
             const { transaction, result: govResult } = await processTransaction(
               walletAddress,
               {
-                recipient: result.supply.token, // Aave pool token as recipient
+                recipient: walletAddress,
                 amount: result.supply.amount,
                 currency: result.supply.tokenSymbol,
                 chain: result.supply.chain,
                 category: "agent_lending",
                 merchant: `pepa_agent_yield_${result.supply.protocol}`,
                 description: `${result.reason}${quoteInfo}`,
+                action: "supply",
+                supply: {
+                  token: result.supply.token,
+                  amountWei: amountWei.toString(),
+                  protocol: result.supply.protocol,
+                },
               }
             );
 
