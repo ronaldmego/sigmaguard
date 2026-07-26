@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **The AI can no longer end a transaction.** `determineFinalOutcome()` let the model's
+  recommendation *reject* an operation that rules and statistics had approved — and a
+  rejection is terminal, so nobody else ever sees it. The model may now move a transaction
+  **towards** a human and never away from one: a `reject` recommendation is honoured as its
+  severity, not its verdict, and becomes `flag_for_review`. Only deterministic rules can
+  reject outright. This is what makes the project's own "AI explains, never decides" claim
+  true rather than decorative ([#23](https://github.com/ronaldmego/sigmaguard/pull/23))
+- Internal strategy notes were removed from the repository and purged from history; the
+  path had been git-ignored since March but was already tracked, so the rule never applied
+  ([#24](https://github.com/ronaldmego/sigmaguard/issues/24))
+
+### Fixed
+- **An agent swap sent native currency to an ERC-20 contract address.** The agent quoted on
+  Velora and then passed the output token's contract as the transfer `recipient`; on
+  auto-approval the pipeline executed a *native transfer* to it — funds stranded, with a
+  governance report claiming the swap had executed. `executeSwap()` and `supply()` had been
+  implemented for months and were never called. Transactions now dispatch by action, and a
+  missing parameter **throws** rather than silently falling back to a transfer
+  ([#23](https://github.com/ronaldmego/sigmaguard/pull/23))
+- Transactions predating execution intents are refused rather than executed as transfers,
+  since their `recipient` still carries the old semantics
+- `npm run type-check` — three `SendTransactionResult` mocks were missing `fee` and `chain`
+
+### Changed
+- The execution intent is recorded in the audit trail, so a swap a human approves hours
+  later still executes as a swap
+- Package identity completed: `pepa-wallet-intelligence` → `sigmaguard`
+
+### Documentation
+- README carries an explicit **exhibition project, not a product** disclaimer: testnet,
+  unaudited, unmaintained for production use
+- `KNOWN_ISSUES.md` rewritten against measured reality — real `npm audit` counts with the
+  direct/upstream split, the agent loop's in-memory state, and four limitations found by an
+  adversarial review and deliberately frozen rather than tracked as open issues
+- Published numbers reconciled with what the code actually does: test counts, Next.js
+  version, component count, and the demo duration (derived from the simulation constants,
+  which the banner had been contradicting five lines later)
+
 ### Added
 - Simulated portfolio balances in Wallet Overview card during demo ([#21](https://github.com/ronaldmego/sigmaguard/issues/21)): ETH/MATIC/MATIC evolve per tick, USDT jumps +$35 at tick 10 when rebalance is approved — narrative matches the crash scenario
 - New API endpoint `/api/agent/wallet-snapshot` — reads latest `agent_run.market_data.wallet_snapshot`
